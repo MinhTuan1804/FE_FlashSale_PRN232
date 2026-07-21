@@ -422,7 +422,7 @@ const HomePage = () => {
       </section>
 
       {/* 2. THIẾT BỊ ĐIỆN TỬ & GAMING SECTION */}
-      <section className="space-y-6">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-xs font-bold text-[#FF1E27] uppercase tracking-wider block mb-1">Danh mục hot</span>
@@ -508,7 +508,7 @@ const HomePage = () => {
       </section>
 
       {/* 3. SẮP DIỄN RA SECTION */}
-      <section className="space-y-6">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-xs font-bold text-[#FF1E27] uppercase tracking-wider block mb-1">Đợt Sale Tiếp Theo</span>
@@ -585,7 +585,7 @@ const HomePage = () => {
       </section>
 
       {/* 4. REPLACEMENT SECTION: TOP PHỤ KIỆN GAMING BÁN CHẠY */}
-      <section className="space-y-6">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold text-[#FF1E27] uppercase tracking-widest mb-1">
@@ -706,7 +706,7 @@ const HomePage = () => {
       </section>
 
       {/* 5. VALUE PROPS BAR */}
-      <section className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 text-center sm:text-left">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-center sm:justify-start gap-4 p-5 rounded-2xl bg-[#0D0D16] border border-[#1A1A2A] hover:border-[#FF1E27]/30 transition-all">
           <div className="p-3.5 rounded-xl bg-[#FF1E27]/10 text-[#FF1E27]">
             <Truck size={24} />
