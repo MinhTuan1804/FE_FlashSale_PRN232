@@ -1,0 +1,163 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # INFRASTRUCTURE
+  # ==========================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: flashshop_sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=FlashShop2024Strong
+    ports:
+      - "1434:1433" # Map port 1433 in container to 1434 on host (as in appsettings.json)
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'FlashShop2024Strong' -Q 'SELECT 1' -No || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flashshop-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: flashshop_rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flashshop-network
+
+  # ==========================================
+  # MICROSERVICES
+  # ==========================================
+  identity-api:
+    image: flashshop.identity.api
+    build:
+      context: .
+      dockerfile: src/Services/Identity/FlashShop.Identity.Api/Dockerfile
+    container_name: identity_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__IdentityDb=Server=sqlserver;Database=FlashShop_IdentityDb;User Id=sa;Password=FlashShop2024Strong;TrustServerCertificate=True
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flashshop-network
+
+  catalog-api:
+    image: flashshop.catalog.api
+    build:
+      context: .
+      dockerfile: src/Services/Catalog/FlashShop.Catalog.Api/Dockerfile
+    container_name: catalog_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__CatalogDb=Server=sqlserver;Database=FlashShop_CatalogDb;User Id=sa;Password=FlashShop2024Strong;TrustServerCertificate=True
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flashshop-network
+
+  inventory-api:
+    image: flashshop.inventory.api
+    build:
+      context: .
+      dockerfile: src/Services/Inventory/FlashShop.Inventory.Api/Dockerfile
+    container_name: inventory_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__InventoryDb=Server=sqlserver;Database=FlashShop_InventoryDb;User Id=sa;Password=FlashShop2024Strong;TrustServerCertificate=True
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flashshop-network
+
+  ordering-api:
+    image: flashshop.ordering.api
+    build:
+      context: .
+      dockerfile: src/Services/Ordering/FlashShop.Ordering.Api/Dockerfile
+    container_name: ordering_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__OrderingDb=Server=sqlserver;Database=FlashShop_OrderingDb;User Id=sa;Password=FlashShop2024Strong;TrustServerCertificate=True
+      - RabbitMq__Host=rabbitmq
+      - ServiceUrls__Identity=http://identity_api:8080
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flashshop-network
+
+  notification-api:
+    image: flashshop.notification.api
+    build:
+      context: .
+      dockerfile: src/Services/Notification/FlashShop.Notification.Api/Dockerfile
+    container_name: notification_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__NotificationDb=Server=sqlserver;Database=FlashShop_NotificationDb;User Id=sa;Password=FlashShop2024Strong;TrustServerCertificate=True
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flashshop-network
+
+  # ==========================================
+  # API GATEWAY
+  # ==========================================
+  gateway:
+    image: flashshop.gateway
+    build:
+      context: .
+      dockerfile: src/Gateway/FlashShop.Gateway/Dockerfile
+    container_name: gateway_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity-api:8080
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog-api:8080
+      - ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address=http://inventory-api:8080
+      - ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address=http://ordering-api:8080
+      - ReverseProxy__Clusters__notification-cluster__Destinations__destination1__Address=http://notification-api:8080
+    ports:
+      - "5164:8080" # Map gateway internal 8080 to host 5164
+    depends_on:
+      - identity-api
+      - catalog-api
+      - inventory-api
+      - ordering-api
+      - notification-api
+    networks:
+      - flashshop-network
+
+networks:
+  flashshop-network:
+    driver: bridge
