@@ -111,8 +111,13 @@ const CartPage = () => {
                 {/* Product Image */}
                 <Link to={`/products/${item.productId}`} className="flex-shrink-0">
                   <img
-                    src={item.imageUrl || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=200'}
+                    src={item.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600'}
                     alt={item.productName}
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      t.onerror = null;
+                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                    }}
                     className="w-18 h-18 md:w-20 md:h-20 rounded-xl object-contain bg-[#08080E] p-2 border border-[#1E1E2E] hover:scale-105 transition-transform"
                     style={{ width: 72, height: 72 }}
                   />

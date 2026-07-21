@@ -167,7 +167,7 @@ const FlashSalePage = () => {
       originalPrice: 4500000,
       flashPrice: 2890000,
       discountPercent: 40,
-      imageUrl: 'https://images.unsplash.com/photo-1626266028802-36fda22b7ebd?auto=format&fit=crop&q=80&w=400',
+      imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600',
       soldPercent: 15,
       stockLeft: 45,
       badge: 'Sắp mở bán'
@@ -439,6 +439,11 @@ const FlashSalePage = () => {
                 <img
                   src={product.imageUrl}
                   alt={product.name}
+                  onError={(e) => {
+                    const t = e.target as HTMLImageElement;
+                    t.onerror = null;
+                    t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>

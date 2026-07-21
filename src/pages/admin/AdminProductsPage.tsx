@@ -203,8 +203,13 @@ const AdminProductsPage = () => {
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
                         <img
-                          src={product.imageUrl || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=200'}
+                          src={product.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600'}
                           alt={product.name}
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement;
+                            t.onerror = null;
+                            t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                          }}
                           className="w-12 h-12 rounded-xl object-contain bg-[#09090B] p-1 border border-[#27272A] flex-shrink-0"
                         />
                         <div className="min-w-0 max-w-xs">

@@ -22,7 +22,7 @@ const fallbackCatalog: Record<string, any> = {
     name: 'Bàn phím cơ Bluetooth RGB không dây Pro-X Custom',
     price: 2890000,
     originalPrice: 4500000,
-    imageUrl: 'https://images.unsplash.com/photo-1626266028802-36fda22b7ebd?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600',
     description: 'Bàn phím cơ không dây đa kết nối Bluetooth 5.2 / 2.4Ghz / Type-C. Switch gõ cực êm, LED RGB 16.8 triệu màu.'
   },
   '00000000-0000-0000-0000-000000000003': {
@@ -262,6 +262,11 @@ const ProductDetailPage = () => {
           <img 
             src={product.imageUrl} 
             alt={product.name} 
+            onError={(e) => {
+              const t = e.target as HTMLImageElement;
+              t.onerror = null;
+              t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+            }}
             className={`max-h-96 object-contain transition-transform duration-300 ${product.isSoldOut ? 'grayscale opacity-60' : 'hover:scale-105'}`}
           />
         </div>

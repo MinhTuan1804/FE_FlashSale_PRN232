@@ -160,7 +160,7 @@ const HomePage = () => {
       name: 'Bàn phím cơ Bluetooth RGB không dây Pro-X',
       price: 2890000,
       originalPrice: 4500000,
-      imageUrl: 'https://images.unsplash.com/photo-1626266028802-36fda22b7ebd?auto=format&fit=crop&q=80&w=400'
+      imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600'
     },
     {
       id: '00000000-0000-0000-0000-000000000003',
@@ -472,6 +472,11 @@ const HomePage = () => {
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      t.onerror = null;
+                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
@@ -542,6 +547,11 @@ const HomePage = () => {
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      t.onerror = null;
+                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
@@ -621,6 +631,11 @@ const HomePage = () => {
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      t.onerror = null;
+                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
