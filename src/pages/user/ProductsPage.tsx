@@ -289,7 +289,7 @@ const ProductsPage = () => {
                 </div>
 
                 {/* Image */}
-                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] p-4 flex justify-center aspect-square">
+                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] aspect-square w-full">
                   <img
                     src={product.imageUrl || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=400'}
                     alt={product.name}
@@ -298,8 +298,7 @@ const ProductsPage = () => {
                       t.onerror = null;
                       t.src = 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=400';
                     }}
-                    className="w-full h-full object-contain group-hover:scale-108 transition-transform duration-500"
-                    style={{ maxHeight: '160px' }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Quick add overlay */}

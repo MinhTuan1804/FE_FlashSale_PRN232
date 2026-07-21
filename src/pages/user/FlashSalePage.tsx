@@ -435,11 +435,11 @@ const FlashSalePage = () => {
             )}
 
             <div>
-              <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] p-6 flex justify-center items-center h-52">
+              <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-44 h-44 object-contain group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
 

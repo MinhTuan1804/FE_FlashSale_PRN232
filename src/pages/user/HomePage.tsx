@@ -468,11 +468,11 @@ const HomePage = () => {
               )}
 
               <div>
-                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] p-4 flex justify-center items-center h-40">
+                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] aspect-square w-full">
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-36 h-36 object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <h3 className="font-semibold text-white line-clamp-2 text-sm mb-2 h-10 group-hover:text-[#FF1E27] transition-colors">
@@ -538,11 +538,11 @@ const HomePage = () => {
               className="flex-shrink-0 w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-2xl flex flex-col justify-between relative group"
             >
               <div>
-                <div className="relative mb-3 overflow-hidden rounded-xl bg-[#08080E] p-4 flex justify-center items-center h-40">
+                <div className="relative mb-3 overflow-hidden rounded-xl bg-[#08080E] aspect-square w-full">
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-36 h-36 object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
@@ -613,7 +613,7 @@ const HomePage = () => {
               className="flex-shrink-0 w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-2xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300"
             >
               <div>
-                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] p-4 flex justify-center items-center h-44">
+                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#08080E] aspect-square w-full">
                   <span className="absolute top-2 left-2 bg-[#FF1E27]/20 border border-[#FF1E27]/40 text-[#FF1E27] text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 backdrop-blur-md">
                     {product.badge || 'Chính hãng'}
                   </span>
@@ -621,7 +621,7 @@ const HomePage = () => {
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-36 h-36 object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
