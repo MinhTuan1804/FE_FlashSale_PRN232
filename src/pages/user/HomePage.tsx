@@ -404,10 +404,10 @@ const HomePage = () => {
               loop
               muted
               playsInline
-              className="w-full h-auto max-h-[640px] object-cover transition-transform duration-700 hover:scale-[1.03] pointer-events-none"
+              className="w-full h-auto max-h-[640px] object-cover rounded-3xl drop-shadow-[0_40px_100px_rgba(0,0,0,0.98)] transition-transform duration-700 hover:scale-[1.03]"
               style={{
-                mixBlendMode: 'screen',
-                filter: 'contrast(1.1) brightness(1.05)'
+                maskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)',
+                WebkitMaskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)'
               }}
             >
               <source src={heroVideo} type="video/mp4" />
