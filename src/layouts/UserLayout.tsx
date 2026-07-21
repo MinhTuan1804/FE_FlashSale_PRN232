@@ -34,7 +34,7 @@ const UserLayout = () => {
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-[#1A1A2A] mt-8 bg-[#0A0510]/80 backdrop-blur-md">
+      <footer className="border-t border-[#1A1A2A] mt-8 bg-transparent">
 
         {/* Trust bar */}
         <div className="border-b border-[#1A1A2A] py-5">

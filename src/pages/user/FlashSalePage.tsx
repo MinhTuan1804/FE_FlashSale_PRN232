@@ -303,7 +303,7 @@ const FlashSalePage = () => {
   const flashProductsToDisplay = getProductsForActiveTab();
 
   return (
-    <div className="space-y-12 pb-16 bg-[#07070c] text-white">
+    <div className="space-y-12 pb-16 bg-transparent text-white">
       {/* 1. FLASH SALE HEADER HERO BANNER */}
       <section className="relative rounded-3xl overflow-hidden border border-[#FF1E27]/40 p-8 md:p-12 bg-gradient-to-r from-[#12070A] via-[#1A0A10] to-[#07070C] shadow-[0_0_60px_rgba(255,30,39,0.25)]">
         <div className="absolute right-0 top-0 w-96 h-96 bg-[#FF1E27]/15 rounded-full blur-[140px] pointer-events-none" />

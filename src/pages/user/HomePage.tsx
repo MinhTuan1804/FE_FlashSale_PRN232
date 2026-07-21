@@ -292,11 +292,11 @@ const HomePage = () => {
   const heroFeaturedProduct = displayElectronicProducts[0] || defaultElectronicProducts[0];
 
   return (
-    <div className="space-y-16 pb-16 bg-[#07070c] text-white">
+    <div className="space-y-16 pb-16 bg-transparent text-white">
       {/* 1. HERO SECTION */}
       <section className="relative rounded-3xl overflow-hidden border border-[#1f1625] p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 group min-h-[640px]">
         {/* Ambient Radial Gradient Mesh Backdrops */}
-        <div className="absolute inset-0 bg-[#07070c] z-0" />
+        <div className="absolute inset-0 bg-[#0D0D16]/80 backdrop-blur-md z-0" />
         <div className="absolute right-[0%] top-[0%] w-[65%] h-[95%] rounded-full bg-[#FF1E27] opacity-[0.22] blur-[160px] pointer-events-none z-0" />
         <div className="absolute right-[20%] bottom-[0%] w-[55%] h-[70%] rounded-full bg-purple-700 opacity-[0.22] blur-[140px] pointer-events-none z-0" />
         

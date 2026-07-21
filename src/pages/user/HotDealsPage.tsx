@@ -158,7 +158,7 @@ const HotDealsPage = () => {
   const dealsToDisplay = apiHotDeals.length > 0 ? apiHotDeals : defaultHotDeals;
 
   return (
-    <div className="space-y-12 pb-16 bg-[#07070c] text-white">
+    <div className="space-y-12 pb-16 bg-transparent text-white">
       {/* 1. HOT DEALS HERO BANNER */}
       <section className="relative rounded-3xl overflow-hidden border border-amber-500/40 p-8 md:p-12 bg-gradient-to-r from-[#171206] via-[#1F180A] to-[#07070C] shadow-[0_0_60px_rgba(255,184,0,0.2)]">
         <div className="absolute right-0 top-0 w-96 h-96 bg-amber-500/15 rounded-full blur-[140px] pointer-events-none" />
