@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Zap, ShoppingBag, ChevronLeft, ChevronRight, ArrowRight, Star, Tag, Check, Copy, 
-  Globe, ShieldCheck, Truck, Headphones, MessageCircle, Share2, Send, Radio, Sparkles
+  ShieldCheck, Truck, Headphones
 } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import toast from 'react-hot-toast';
@@ -738,76 +738,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 6. FOOTER */}
-      <footer className="pt-16 border-t border-transparent relative mt-24">
-        {/* Red gradient separator line */}
-        <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#FF1E27] to-transparent opacity-80" />
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 max-w-7xl mx-auto px-4 md:px-0">
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white tracking-widest uppercase">LIÊN KẾT NHANH</h4>
-            <ul className="space-y-2 text-xs text-[#8E92B2]">
-              <li><Link to="/" className="hover:text-white transition-colors">Trang chủ</Link></li>
-              <li><Link to="/products" className="hover:text-white transition-colors">Danh mục sản phẩm</Link></li>
-              <li><Link to="/products" className="hover:text-white transition-colors">Flash Sale hôm nay</Link></li>
-              <li><Link to="/products" className="hover:text-white transition-colors">Theo dõi đơn hàng</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Trung tâm trợ giúp</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white tracking-widest uppercase">HỖ TRỢ KHÁCH HÀNG</h4>
-            <ul className="space-y-2 text-xs text-[#8E92B2]">
-              <li><Link to="/" className="hover:text-white transition-colors">Sơ đồ trang web</Link></li>
-              <li><Link to="/products" className="hover:text-white transition-colors">Cửa hàng trực tuyến</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Hợp tác thương hiệu</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Truyền thông & Báo chí</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Liên hệ tư vấn</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white tracking-widest uppercase">TÀI KHOẢN & CHÍNH SÁCH</h4>
-            <ul className="space-y-2 text-xs text-[#8E92B2]">
-              <li><Link to="/profile" className="hover:text-white transition-colors">Thông tin tài khoản</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Chính sách bảo mật</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Điều khoản dịch vụ</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Chính sách đổi trả 1-đổi-1</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Quy định bảo hành</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white tracking-widest uppercase">KÊNH TRUYỀN THÔNG</h4>
-            <div className="flex items-center space-x-3 text-[#8E92B2]">
-              <a href="#" className="w-8 h-8 rounded-full border border-[#232338] hover:border-white hover:text-white flex items-center justify-center transition-all duration-300" title="Cộng đồng">
-                <MessageCircle size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full border border-[#232338] hover:border-white hover:text-white flex items-center justify-center transition-all duration-300" title="Chia sẻ">
-                <Share2 size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full border border-[#232338] hover:border-white hover:text-white flex items-center justify-center transition-all duration-300" title="Kênh Telegram">
-                <Send size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full border border-[#232338] hover:border-white hover:text-white flex items-center justify-center transition-all duration-300" title="Kênh Podcast">
-                <Radio size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full border border-[#232338] hover:border-white hover:text-white flex items-center justify-center transition-all duration-300" title="Website chính thức">
-                <Globe size={16} />
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-[#121220] pt-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto text-xs text-[#8E92B2] gap-4 px-4 md:px-0 relative">
-          <p>© 2026 FlashShop Inc. | Tất cả quyền được bảo lưu. Phát triển bởi Nhóm 8 (Group 8)</p>
-          <div className="flex items-center gap-1.5">
-            <Zap className="h-4 w-4 text-[#FF1E27] fill-[#FF1E27]" />
-            <span className="font-extrabold tracking-tight text-white text-sm">
-              <span className="text-[#FF1E27]">Flash</span>Shop
-            </span>
-          </div>
-
-          <Sparkles className="absolute right-4 bottom-[-10px] text-gray-500/30" size={32} />
-        </div>
-      </footer>
     </div>
   );
 };
