@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   ShoppingCart, User, Zap, Bell, Search, Check, Tag, Package, Sparkles, Send,
   Menu, X, Home, Layers, Flame, ChevronRight
@@ -9,8 +9,12 @@ import { useNotificationStore } from '../stores/useNotificationStore';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
-  const totalItems = useCartStore((state) => state.totalItems());
+  const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+
+  const totalItems = useCartStore((state) => state.totalItems());
 
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = useNotificationStore((state) => state.unreadCount());
@@ -21,6 +25,20 @@ const Navbar = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMobileMenuOpen(false);
+    } else {
+      navigate('/products');
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -118,14 +136,18 @@ const Navbar = () => {
             </div>
 
             {/* Search Bar — Desktop */}
-            <div className="flex-1 max-w-xs relative hidden md:block">
+            <form onSubmit={handleSearchSubmit} className="flex-1 max-w-xs relative hidden md:block">
               <input
                 type="text"
-                placeholder="Tìm kiếm sản phẩm, thiết bị gaming..."
-                className="w-full bg-[#121220]/60 text-[#8E92B2] placeholder-[#5A5E7A] text-xs rounded-full py-2 pl-4 pr-10 border border-[#232338] focus:border-[#FF1E27] focus:outline-none focus:bg-[#121220] transition-all"
+                placeholder="Tìm kiếm sản phẩm, thiết bị..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#121220]/60 text-white placeholder-[#5A5E7A] text-xs rounded-full py-2 pl-4 pr-10 border border-[#232338] focus:border-[#FF1E27] focus:outline-none focus:bg-[#121220] transition-all"
               />
-              <Search className="absolute right-3.5 top-2.5 h-3.5 w-3.5 text-[#5A5E7A]" />
-            </div>
+              <button type="submit" className="absolute right-3.5 top-2.5 text-[#5A5E7A] hover:text-white transition-colors">
+                <Search className="h-3.5 w-3.5" />
+              </button>
+            </form>
 
             {/* Right Icons */}
             <div className="flex items-center gap-1">
@@ -268,14 +290,16 @@ const Navbar = () => {
 
             {/* Mobile Search */}
             <div className="p-4 border-b border-[#1A1A2A]">
-              <div className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5E7A]" />
                 <input
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-[#121220] border border-[#232338] text-white text-sm rounded-xl pl-9 pr-4 py-2.5 outline-none focus:border-[#FF1E27] transition-colors placeholder-[#5A5E7A]"
                 />
-              </div>
+              </form>
             </div>
 
             {/* Mobile Nav Links */}

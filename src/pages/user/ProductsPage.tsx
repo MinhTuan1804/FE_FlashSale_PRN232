@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import { ShoppingBag, Star, Search, PackageX, Layers, X, ArrowUpDown, Check, LayoutGrid, List } from 'lucide-react';
 import { getProducts, getCategories } from '../../api/catalog.api';
 import { useCartStore } from '../../stores/useCartStore';
@@ -35,11 +35,16 @@ const getProductBadge = (index: number) => {
 };
 
 const ProductsPage = () => {
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const addItem = useCartStore((state) => state.addItem);
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+  }, [searchParams]);
 
   const { data: categoriesResult } = useQuery({
     queryKey: ['categories'],
@@ -167,10 +172,10 @@ const ProductsPage = () => {
 
         {/* Search Bar */}
         <div className="relative w-full">
-          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5A5E7A]" />
+          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FF1E27] z-10 pointer-events-none" />
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên sản phẩm, thương hiệu..."
+            placeholder="Tìm kiếm sản phẩm theo tên..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#121220] border border-[#232338] rounded-xl pl-12 pr-10 py-3.5 text-white text-sm focus:border-[#FF1E27] focus:outline-none transition-colors placeholder-[#5A5E7A]"
