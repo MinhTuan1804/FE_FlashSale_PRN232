@@ -3,6 +3,16 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Grid, Plus, Edit2, Trash2, X, Check, Loader2, Layers } from 'lucide-react';
 import { getCategories } from '../../api/catalog.api';
 import toast from 'react-hot-toast';
+import axiosClient from '../../api/axiosClient';
+
+const adminCreateCategory = (data: { name: string; description: string }) =>
+  axiosClient.post('/api/catalog/categories', data);
+
+const adminUpdateCategory = (id: number | string, data: { name: string; description: string }) =>
+  axiosClient.put(`/api/catalog/categories/${id}`, data);
+
+const adminDeleteCategory = (id: number | string) =>
+  axiosClient.delete(`/api/catalog/categories/${id}`);
 
 const AdminCategoriesPage = () => {
   const queryClient = useQueryClient();

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../../stores/useCartStore';
 import { CreditCard, Wallet, MapPin, CheckCircle2, Loader2, User, Phone, ChevronRight, ShieldCheck, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { checkout, addToCart, payOrder } from '../../api/ordering.api';
+import { checkout, addToCart } from '../../api/ordering.api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../../api/axiosClient';
 import { useAuthStore } from '../../stores/useAuthStore';

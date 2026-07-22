@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  ShoppingCart, User, Zap, Bell, Search, Check, Tag, Package, Sparkles, Send,
+  ShoppingCart, User, Zap, Bell, Search, Check, Tag, Package, Sparkles,
   Menu, X, Home, Layers, Flame, ChevronRight
 } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
 import { useNotificationStore } from '../stores/useNotificationStore';
-import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -20,7 +19,6 @@ const Navbar = () => {
   const unreadCount = useNotificationStore((state) => state.unreadCount());
   const markAsRead = useNotificationStore((state) => state.markAsRead);
   const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
-  const pushTestNotification = useNotificationStore((state) => state.pushTestNotification);
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -67,26 +65,6 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const isLinkActive = (path: string) => location.pathname === path;
-
-  const handlePushTest = () => {
-    pushTestNotification();
-    const latestNotif = useNotificationStore.getState().notifications[0];
-    toast.custom(
-      (t) => (
-        <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-[#0D0D16] border border-[#FF1E27] shadow-[0_10px_30px_rgba(255,30,39,0.4)] rounded-2xl p-4 flex gap-3 text-white pointer-events-auto`}>
-          <div className="p-2 rounded-xl bg-[#FF1E27]/20 text-[#FF1E27] flex-shrink-0 h-fit">
-            <Zap size={20} className="fill-[#FF1E27]" />
-          </div>
-          <div>
-            <h4 className="font-extrabold text-sm text-[#FF1E27]">{latestNotif?.title || 'THÔNG BÁO TEST VỪA PUSH'}</h4>
-            <p className="text-xs text-[#8E92B2] mt-0.5">{latestNotif?.message}</p>
-            <span className="text-[10px] text-[#5A5E7A] mt-1 block">Vừa đẩy qua Notification System</span>
-          </div>
-        </div>
-      ),
-      { duration: 4000 }
-    );
-  };
 
   const getNotifIcon = (type: string) => {
     switch (type) {

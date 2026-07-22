@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Zap, Plus, Clock, Flame, Sparkles, Check, X } from 'lucide-react';
-import { getProducts, getAllFlashSales } from '../../api/catalog.api';
+import { getProducts } from '../../api/catalog.api';
 import toast from 'react-hot-toast';
 import { formatVND } from '../user/HomePage';
 
@@ -40,7 +40,8 @@ const AdminFlashSalesPage = () => {
         original: (Number(p.price) || 3490000) * 1.3,
         flash: Number(p.price) || 3490000,
         sold: 85,
-        total: p.stockQuantity || 100
+        total: p.stockQuantity || 100,
+        soldOut: false
       }))
     },
     {
@@ -53,7 +54,8 @@ const AdminFlashSalesPage = () => {
         original: (Number(p.price) || 2890000) * 1.25,
         flash: Number(p.price) || 2890000,
         sold: 15,
-        total: p.stockQuantity || 50
+        total: p.stockQuantity || 50,
+        soldOut: false
       }))
     },
     {
@@ -66,7 +68,8 @@ const AdminFlashSalesPage = () => {
         original: (Number(p.price) || 18990000) * 1.2,
         flash: Number(p.price) || 18990000,
         sold: 40,
-        total: p.stockQuantity || 100
+        total: p.stockQuantity || 100,
+        soldOut: false
       }))
     }
   ];

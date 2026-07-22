@@ -487,7 +487,7 @@ const FlashSalePage = () => {
             <Link
               key={product.id}
               to={`/products/${product.id}`}
-              state={{ product: { id: product.id, name: product.name, price: product.flashPrice || product.price, originalPrice: product.originalPrice, imageUrl: product.imageUrl, description: (product as any).description } }}
+              state={{ product: { id: product.id, name: product.name, price: product.flashPrice || (product as any).price, originalPrice: product.originalPrice, imageUrl: product.imageUrl, description: (product as any).description } }}
               className="bg-[#0D0D16] red-card-border rounded-3xl p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
             >
               {/* Discount Ribbon Badge */}

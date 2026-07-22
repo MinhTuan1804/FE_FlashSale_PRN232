@@ -3,7 +3,7 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import { 
   User, Settings, LogOut, Package, Wallet, Bell, PlusCircle, Sparkles, Loader2, 
-  CheckCircle2, Phone, MapPin, Zap, Tag, Check, Send, Trash2 
+  CheckCircle2, Phone, MapPin, Zap, Tag, Check, Trash2 
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -24,7 +24,6 @@ const ProfilePage = () => {
   const unreadCount = useNotificationStore((state) => state.unreadCount());
   const markAsRead = useNotificationStore((state) => state.markAsRead);
   const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
-  const pushTestNotification = useNotificationStore((state) => state.pushTestNotification);
   const clearAll = useNotificationStore((state) => state.clearAll);
   const fetchServerNotifications = useNotificationStore((state) => state.fetchServerNotifications);
 
