@@ -1,27 +1,44 @@
 import { useState } from 'react';
 import { Bell, Send, Tag, Zap, Package, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useNotificationStore } from '../../stores/useNotificationStore';
+import axiosClient from '../../api/axiosClient';
 import toast from 'react-hot-toast';
 
 const AdminNotificationsPage = () => {
-  const pushTestNotification = useNotificationStore((state) => state.pushTestNotification);
+  const addNotification = useNotificationStore((state) => state.addNotification);
   const notifications = useNotificationStore((state) => state.notifications);
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState<'flash_sale' | 'voucher' | 'order' | 'system'>('flash_sale');
 
-  const handleBroadcastNotification = (e: React.FormEvent) => {
+  const handleBroadcastNotification = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !message.trim()) {
       toast.error('Vui lòng nhập đầy đủ tiêu đề và nội dung thông báo!');
       return;
     }
 
-    pushTestNotification();
-    toast.success(`Đã phát thông báo PUSH "${title}" tới tất cả người dùng!`);
-    setTitle('');
-    setMessage('');
+    try {
+      // 1. Call Backend Notification Microservice API
+      await axiosClient.post('/notifications/push-test', {
+        title: title.trim(),
+        message: message.trim()
+      }).catch(() => {});
+
+      // 2. Broadcast live to Client Store
+      addNotification({
+        title: title.trim(),
+        message: message.trim(),
+        type: type
+      });
+
+      toast.success(`Đã phát thông báo PUSH "${title}" tới tất cả người dùng!`);
+      setTitle('');
+      setMessage('');
+    } catch {
+      toast.error('Phát thông báo thất bại.');
+    }
   };
 
   const getNotifIcon = (t: string) => {

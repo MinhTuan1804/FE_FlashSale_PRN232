@@ -4,7 +4,7 @@ import { useCartStore } from '../../stores/useCartStore';
 import { CreditCard, Wallet, MapPin, CheckCircle2, Loader2, User, Phone, ChevronRight, ShieldCheck, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { checkout, addToCart, payOrder } from '../../api/ordering.api';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../../api/axiosClient';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { formatVND } from './HomePage';
@@ -13,6 +13,7 @@ type Step = 1 | 2 | 3;
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const { items, totalPrice, clearCart } = useCartStore();
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -49,24 +50,31 @@ const CheckoutPage = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate('/cart');
+    }
+  }, [items.length, navigate]);
+
   const { data: walletData } = useQuery({
-    queryKey: ['my-wallet'],
+    queryKey: ['my-wallet', user?.id || user?.email],
     queryFn: async () => {
       try {
         const res: any = await axiosClient.get('/wallets/my-wallet');
         const raw = res.data?.balance ?? res?.balance ?? 0;
-        const converted = raw < 100000 ? raw * 25000 : raw;
-        return { balance: converted };
+        return { balance: Number(raw) };
       } catch {
-        return { balance: 50000000 };
+        return { balance: 0 };
       }
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
-  const walletBalance = walletData?.balance ?? 50000000;
+  const walletBalance = walletData?.balance ?? 0;
 
   const rawTotal = totalPrice();
-  const calculatedTotal = rawTotal < 10000 ? rawTotal * 25000 : rawTotal;
+  const calculatedTotal = rawTotal;
 
   const handleNextStep = () => {
     if (currentStep === 1) {
@@ -114,35 +122,34 @@ const CheckoutPage = () => {
         isFlashSaleOrder: false
       });
 
-      const newOrder = checkoutRes?.data || checkoutRes;
+      const resData = checkoutRes?.data || checkoutRes;
 
-      if (paymentMethod === 'wallet' && newOrder?.id) {
-        toast.loading('Đang xử lý thanh toán bằng ví...', { id: 'pay' });
-        await new Promise(r => setTimeout(r, 1200));
-        try {
-          await payOrder(newOrder.id);
-          toast.success('Đặt hàng & Thanh toán qua ví FlashPay thành công!', { id: 'pay' });
-        } catch {
-          toast.error('Đơn hàng đã tạo! Vui lòng nạp thêm tiền ví để thanh toán.', { id: 'pay' });
-        }
+      if (resData?.success === false) {
+        const err = resData?.message || 'Đặt hàng thất bại. Vui lòng kiểm tra lại.';
+        toast.error(err);
+        return;
+      }
+
+      if (paymentMethod === 'wallet') {
+        toast.success('Đặt hàng & Thanh toán qua ví FlashPay thành công!');
       } else {
         toast.success('Đặt hàng thành công!');
       }
 
       clearCart();
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wallet'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       navigate('/orders');
     } catch (e: any) {
-      const msg = e.response?.data?.message || 'Đặt hàng thành công!';
-      toast.success(msg);
-      clearCart();
-      navigate('/orders');
+      const serverMessage = e?.response?.data?.message || e?.message || 'Đặt hàng thất bại. Vui lòng kiểm tra số dư ví!';
+      toast.error(serverMessage);
     } finally {
       setIsProcessing(false);
     }
   };
 
   if (items.length === 0) {
-    navigate('/cart');
     return null;
   }
 

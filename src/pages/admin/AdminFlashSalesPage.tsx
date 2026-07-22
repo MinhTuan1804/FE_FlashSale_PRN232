@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Zap, Plus, Clock, Flame, Sparkles, Check, X } from 'lucide-react';
+import { getProducts, getAllFlashSales } from '../../api/catalog.api';
 import toast from 'react-hot-toast';
 import { formatVND } from '../user/HomePage';
 
@@ -11,38 +13,61 @@ const AdminFlashSalesPage = () => {
   const [flashPrice, setFlashPrice] = useState('3490000');
   const [stockLimit, setStockLimit] = useState('20');
 
+  const { data: realProducts } = useQuery({
+    queryKey: ['admin-flash-products'],
+    queryFn: async () => {
+      try {
+        const res: any = await getProducts();
+        return res.data?.items || res.items || res.data || res || [];
+      } catch {
+        return [];
+      }
+    },
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
+
+  const productsList = Array.isArray(realProducts) ? realProducts : [];
+
   const flashSessions = [
     {
       id: 1,
       title: 'Đang Diễn Ra (00:00 - 12:00)',
       status: 'ACTIVE',
       icon: Flame,
-      products: [
-        { name: 'Apex Pro SteelSeries + Chuột Prime', original: 5900000, flash: 3490000, sold: 88, total: 100 },
-        { name: 'Tai nghe Arctis Nova Pro Wireless', original: 8490000, flash: 5990000, sold: 75, total: 100 },
-        { name: 'Chuột Razer Viper V3 Pro', original: 3890000, flash: 2890000, sold: 94, total: 100 },
-        { name: 'ROG Swift OLED 360Hz', original: 22990000, flash: 18990000, sold: 100, total: 100, soldOut: true },
-      ]
+      products: productsList.slice(0, 4).map((p: any) => ({
+        name: p.name || p.title,
+        original: (Number(p.price) || 3490000) * 1.3,
+        flash: Number(p.price) || 3490000,
+        sold: 85,
+        total: p.stockQuantity || 100
+      }))
     },
     {
       id: 2,
       title: 'Sắp Diễn Ra (12:00 - 18:00)',
       status: 'SCHEDULED',
       icon: Zap,
-      products: [
-        { name: 'Bàn phím Pro-X Custom Bluetooth', original: 4500000, flash: 2890000, sold: 15, total: 50 },
-        { name: 'Màn hình Samsung Odyssey G9 240Hz', original: 34990000, flash: 24990000, sold: 10, total: 20 },
-      ]
+      products: productsList.slice(4, 7).map((p: any) => ({
+        name: p.name || p.title,
+        original: (Number(p.price) || 2890000) * 1.25,
+        flash: Number(p.price) || 2890000,
+        sold: 15,
+        total: p.stockQuantity || 50
+      }))
     },
     {
       id: 3,
       title: 'Đợt Cuối Ngày (18:00 - 24:00)',
       status: 'SCHEDULED',
       icon: Sparkles,
-      products: [
-        { name: 'Card RTX 4090 OC 24GB', original: 54990000, flash: 45990000, sold: 50, total: 100 },
-        { name: 'Tay Cầm Xbox Elite Series 2', original: 3490000, flash: 2490000, sold: 40, total: 100 },
-      ]
+      products: productsList.slice(7, 10).map((p: any) => ({
+        name: p.name || p.title,
+        original: (Number(p.price) || 18990000) * 1.2,
+        flash: Number(p.price) || 18990000,
+        sold: 40,
+        total: p.stockQuantity || 100
+      }))
     }
   ];
 

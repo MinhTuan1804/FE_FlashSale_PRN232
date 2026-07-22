@@ -31,3 +31,10 @@ export const cancelOrder = (id: string) =>
 
 export const payOrder = (id: string) => 
   axiosClient.post(`/orders/${id}/pay`);
+
+export const getAllOrders = (page = 1, pageSize = 100, status?: string) => 
+  axiosClient.get(`/orders?page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : ''}`);
+
+export const updateOrderStatus = (id: string, status: string) => 
+  axiosClient.put(`/orders/${id}/status`, { status });
+

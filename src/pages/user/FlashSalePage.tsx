@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Zap, ShoppingBag, Clock, Flame, Sparkles } from 'lucide-react';
 import { useCartStore } from '../../stores/useCartStore';
 import toast from 'react-hot-toast';
-import { getActiveFlashSales } from '../../api/catalog.api';
+import { getActiveFlashSales, getProducts } from '../../api/catalog.api';
 import { formatVND } from './HomePage';
 
 interface FlashProduct {
@@ -57,30 +57,100 @@ const FlashSalePage = () => {
   useEffect(() => {
     const fetchFlashSales = async () => {
       try {
-        const res = await getActiveFlashSales();
-        if (res) {
-          const data = (res as any).data || res;
-          if (Array.isArray(data) && data.length > 0) {
-            const mapped = data.map((item: any) => {
+        const [saleRes, prodRes] = await Promise.allSettled([
+          getActiveFlashSales(),
+          getProducts(1, 20)
+        ]);
+
+        let mappedSales: FlashProduct[] = [];
+
+        if (saleRes.status === 'fulfilled' && saleRes.value) {
+          const rawVal = saleRes.value as any;
+          const data = rawVal?.data?.data || rawVal?.data || rawVal;
+          const campaignList = Array.isArray(data) ? data : (data ? [data] : []);
+          let items: any[] = [];
+
+          campaignList.forEach((camp: any) => {
+            if (Array.isArray(camp.items)) {
+              items.push(...camp.items);
+            } else if (camp.productId) {
+              items.push(camp);
+            }
+          });
+
+          if (items.length === 0 && Array.isArray((data as any).items)) {
+            items = (data as any).items;
+          }
+
+          if (items.length > 0) {
+            mappedSales = items.map((item: any) => {
               const rawPrice = Number(item.flashSalePrice || item.price) || 3490000;
               const convertedPrice = rawPrice < 10000 ? rawPrice * 25000 : rawPrice;
+              const origPrice = Number(item.originalPrice) > 0 ? Number(item.originalPrice) : convertedPrice * 1.4;
+              const totalStock = item.flashSaleQuantity || 50;
+              const soldQty = item.soldQuantity || 0;
+              const stockLeft = item.stockQuantity !== undefined ? Number(item.stockQuantity) : Math.max(0, totalStock - soldQty);
+              const isSoldOut = stockLeft <= 0;
+              const soldPercent = isSoldOut ? 100 : Math.min(99, Math.round(((totalStock - stockLeft) / totalStock) * 100));
+
               return {
-                id: item.id || item.productId,
-                name: item.name || item.productName || 'Thiết bị Gaming High-End',
-                originalPrice: item.originalPrice ? Number(item.originalPrice) : convertedPrice * 1.4,
+                id: item.productId || item.id,
+                name: item.productName || item.name || 'Thiết bị Gaming High-End',
+                originalPrice: origPrice,
                 flashPrice: convertedPrice,
-                discountPercent: 30,
+                discountPercent: Math.round((1 - convertedPrice / origPrice) * 100),
                 imageUrl: item.productImageUrl || item.imageUrl || 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=400',
-                soldPercent: 65,
-                stockLeft: 10,
-                badge: 'Flash Sale Live'
+                soldPercent,
+                stockLeft,
+                isSoldOut,
+                badge: isSoldOut ? 'Cháy hàng' : 'Flash Sale Live'
               };
             });
-            setApiProducts(mapped);
           }
         }
+
+        if (prodRes.status === 'fulfilled' && prodRes.value) {
+          const val = prodRes.value as any;
+          const paged = val?.data?.items ? val.data.items : (val?.data ? val.data : (val?.items ? val.items : val));
+          const items = Array.isArray(paged) ? paged : (Array.isArray(paged?.items) ? paged.items : []);
+          if (Array.isArray(items) && items.length > 0) {
+            const mappedProds = items.map((p: any) => {
+              const rawPrice = Number(p.price || p.unitPrice) || 3490000;
+              const convertedPrice = rawPrice < 10000 ? rawPrice * 25000 : rawPrice;
+              const origPrice = Math.round(convertedPrice * 1.3);
+              const stockLeft = p.stockQuantity !== undefined ? Number(p.stockQuantity) : 15;
+              const totalStock = 50;
+              const isSoldOut = stockLeft <= 0;
+              const soldPercent = isSoldOut ? 100 : Math.min(99, Math.round(((totalStock - stockLeft) / totalStock) * 100));
+
+              return {
+                id: p.id,
+                name: p.name,
+                originalPrice: origPrice,
+                flashPrice: convertedPrice,
+                discountPercent: 23,
+                imageUrl: p.imageUrl || 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=400',
+                soldPercent,
+                stockLeft,
+                isSoldOut,
+                badge: isSoldOut ? 'Cháy hàng' : 'Chính hãng'
+              };
+            });
+
+            const allMap = new Map<string, FlashProduct>();
+            mappedSales.forEach(s => allMap.set(s.id, s));
+            mappedProds.forEach(pr => { if (!allMap.has(pr.id)) allMap.set(pr.id, pr); });
+            console.log('FLASH_SALE_DEBUG_FINAL:', mappedSales, mappedProds, Array.from(allMap.values()));
+            setApiProducts(Array.from(allMap.values()));
+            return;
+          }
+        }
+
+        if (mappedSales.length > 0) {
+          setApiProducts(mappedSales);
+        }
       } catch (err) {
-        console.warn('API FlashSale offline, rendering localized Flash Sale catalog:', err);
+        console.warn('API FlashSale notice:', err);
       }
     };
     fetchFlashSales();
@@ -279,25 +349,25 @@ const FlashSalePage = () => {
 
   // Determine current products list based on Active Tab
   const getProductsForActiveTab = (): FlashProduct[] => {
-    let list: FlashProduct[];
-    if (activeTab === 'upcoming') {
-      list = upcomingProducts;
-    } else if (activeTab === 'night') {
-      list = nightProducts;
-    } else {
-      list = activeProducts;
-    }
-
     if (apiProducts.length > 0) {
-      const mergedMap = new Map<string, FlashProduct>();
-      apiProducts.forEach((p) => mergedMap.set(p.id, p));
-      list.forEach((p) => {
-        if (!mergedMap.has(p.id)) mergedMap.set(p.id, p);
-      });
-      return Array.from(mergedMap.values());
+      if (activeTab === 'upcoming') {
+        const upcomingSlice = apiProducts.slice(Math.floor(apiProducts.length / 3), Math.floor((apiProducts.length * 2) / 3));
+        return upcomingSlice.length > 0 ? upcomingSlice : apiProducts;
+      } else if (activeTab === 'night') {
+        const nightSlice = apiProducts.slice(Math.floor((apiProducts.length * 2) / 3));
+        return nightSlice.length > 0 ? nightSlice : apiProducts;
+      } else {
+        return apiProducts;
+      }
     }
 
-    return list;
+    if (activeTab === 'upcoming') {
+      return upcomingProducts;
+    } else if (activeTab === 'night') {
+      return nightProducts;
+    } else {
+      return activeProducts;
+    }
   };
 
   const flashProductsToDisplay = getProductsForActiveTab();
@@ -405,74 +475,83 @@ const FlashSalePage = () => {
 
       {/* 3. FLASH SALE PRODUCT GRID */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {flashProductsToDisplay.map((product) => (
-          <Link
-            key={product.id}
-            to={`/products/${product.id}`}
-            className="bg-[#0D0D16] red-card-border rounded-3xl p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
-          >
-            {/* Discount Ribbon Badge */}
-            <div className="absolute top-3 left-3 bg-[#FF1E27] text-white font-black text-xs px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
-              <Zap className="w-3 h-3 fill-white" />
-              <span>-{product.discountPercent}%</span>
-            </div>
+        {flashProductsToDisplay.map((product) => {
+          const stockLeft = product.stockLeft !== undefined 
+            ? product.stockLeft 
+            : ((product as any).stockQuantity !== undefined ? Number((product as any).stockQuantity) : 15);
+          const totalStock = (product as any).stockTotal || 50;
+          const isSoldOut = stockLeft <= 0 || product.isSoldOut === true;
+          const soldPercent = isSoldOut ? 100 : Math.min(99, Math.round(((totalStock - stockLeft) / totalStock) * 100));
 
-            {product.badge && !product.isSoldOut && (
-              <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold text-[10px] px-2.5 py-0.5 rounded-full z-20">
-                {product.badge}
-              </div>
-            )}
-
-            {product.isSoldOut && (
-              <div className="absolute inset-0 bg-[#07070C]/90 backdrop-blur-xs flex flex-col items-center justify-center z-30">
-                <span className="bg-[#FF1E27] text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2 shadow-lg">
-                  CHÁY HÀNG
-                </span>
-                <span className="text-white text-lg font-black tracking-widest uppercase">
-                  ĐÃ BÁN HẾT 100%
-                </span>
-              </div>
-            )}
-
-            <div>
-              <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  onError={(e) => {
-                    const t = e.target as HTMLImageElement;
-                    t.onerror = null;
-                    t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
-                  }}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+          return (
+            <Link
+              key={product.id}
+              to={`/products/${product.id}`}
+              state={{ product: { id: product.id, name: product.name, price: product.flashPrice || product.price, originalPrice: product.originalPrice, imageUrl: product.imageUrl, description: (product as any).description } }}
+              className="bg-[#0D0D16] red-card-border rounded-3xl p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
+            >
+              {/* Discount Ribbon Badge */}
+              <div className="absolute top-3 left-3 bg-[#FF1E27] text-white font-black text-xs px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
+                <Zap className="w-3 h-3 fill-white" />
+                <span>-{product.discountPercent}%</span>
               </div>
 
-              <h3 className="font-bold text-white text-base line-clamp-2 h-12 mb-3 group-hover:text-[#FF1E27] transition-colors">
-                {product.name}
-              </h3>
-            </div>
-
-            {/* Inventory Progress Bar */}
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-[#8E92B2]">Đã bán {product.soldPercent}%</span>
-                <span className={product.stockLeft > 0 && product.stockLeft < 5 ? 'text-amber-400 animate-pulse font-black' : 'text-[#8E92B2]'}>
-                  {product.isSoldOut ? 'Hết hàng' : `Còn ${product.stockLeft} sp`}
-                </span>
-              </div>
-              <div className="progress-bar-track">
-                <div
-                  className={`progress-bar-fill ${product.soldPercent >= 90 ? 'almost-sold' : ''}`}
-                  style={{ width: `${product.soldPercent}%` }}
-                />
-              </div>
-              {product.stockLeft > 0 && product.stockLeft < 5 && (
-                <div className="text-[10px] text-amber-400 font-bold flex items-center gap-1">
-                  ⚠️ Sắp hết hàng — Chỉ còn {product.stockLeft} sản phẩm!
+              {product.badge && !isSoldOut && (
+                <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold text-[10px] px-2.5 py-0.5 rounded-full z-20">
+                  {product.badge}
                 </div>
               )}
-            </div>
+
+              {isSoldOut && (
+                <div className="absolute inset-0 bg-[#07070C]/90 backdrop-blur-xs flex flex-col items-center justify-center z-30">
+                  <span className="bg-[#FF1E27] text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2 shadow-lg">
+                    CHÁY HÀNG
+                  </span>
+                  <span className="text-white text-lg font-black tracking-widest uppercase">
+                    ĐÃ BÁN HẾT 100%
+                  </span>
+                </div>
+              )}
+
+              <div>
+                <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    onError={(e) => {
+                      const t = e.target as HTMLImageElement;
+                      t.onerror = null;
+                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                    }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+
+                <h3 className="font-bold text-white text-base line-clamp-2 h-12 mb-3 group-hover:text-[#FF1E27] transition-colors">
+                  {product.name}
+                </h3>
+              </div>
+
+              {/* Inventory Progress Bar */}
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-[#8E92B2]">Đã bán {soldPercent}%</span>
+                  <span className={stockLeft > 0 && stockLeft < 5 ? 'text-amber-400 animate-pulse font-black' : 'text-[#8E92B2]'}>
+                    {isSoldOut ? 'Hết hàng' : `Còn ${stockLeft} sp`}
+                  </span>
+                </div>
+                <div className="progress-bar-track">
+                  <div
+                    className={`progress-bar-fill ${soldPercent >= 90 ? 'almost-sold' : ''}`}
+                    style={{ width: `${soldPercent}%` }}
+                  />
+                </div>
+                {stockLeft > 0 && stockLeft < 5 && (
+                  <div className="text-[10px] text-amber-400 font-bold flex items-center gap-1">
+                    ⚠️ Sắp hết hàng — Chỉ còn {stockLeft} sản phẩm!
+                  </div>
+                )}
+              </div>
 
             {/* Price & Action Button */}
             <div className="pt-4 border-t border-[#1E1E2E] flex items-center justify-between">
@@ -487,19 +566,20 @@ const FlashSalePage = () => {
 
               <button
                 onClick={(e) => handleAddToCart(product, e)}
-                disabled={product.isSoldOut}
+                disabled={isSoldOut}
                 className={`px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${
-                  product.isSoldOut
+                  isSoldOut
                     ? 'bg-[#1F1F30] text-[#5A5E7A] cursor-not-allowed'
                     : 'bg-[#FF1E27] hover:bg-[#E02424] text-white active:scale-95 shadow-[0_5px_15px_rgba(255,30,39,0.4)]'
                 }`}
               >
                 <ShoppingBag size={14} />
-                <span>{product.isSoldOut ? 'Hết hàng' : 'MUA NGAY'}</span>
+                <span>{isSoldOut ? 'Hết hàng' : 'MUA NGAY'}</span>
               </button>
             </div>
           </Link>
-        ))}
+        );
+      })}
       </section>
     </div>
   );

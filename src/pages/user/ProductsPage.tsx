@@ -190,10 +190,10 @@ const ProductsPage = () => {
         {/* Category Pills */}
         <div className="space-y-2">
           <div className="text-xs font-bold uppercase tracking-wider text-[#5A5E7A]">Lọc Theo Danh Mục</div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs -mx-1 px-1">
             <button
               onClick={() => setSelectedCategoryId(null)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 border ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 border whitespace-nowrap flex-shrink-0 ${
                 selectedCategoryId === null
                   ? 'bg-[#FF1E27] text-white border-[#FF1E27] shadow-lg shadow-[#FF1E27]/25'
                   : 'bg-[#121220] text-[#8E92B2] hover:text-white border-[#232338] hover:border-[#FF1E27]/50'
@@ -201,7 +201,7 @@ const ProductsPage = () => {
             >
               {selectedCategoryId === null && <Check size={14} />}
               Tất Cả
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${selectedCategoryId === null ? 'bg-black/20' : 'bg-white/5 text-[#5A5E7A]'}`}>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${selectedCategoryId === null ? 'bg-black/20 text-white' : 'bg-white/5 text-[#8E92B2]'}`}>
                 {allProducts.length || '120+'}
               </span>
             </button>
@@ -213,7 +213,7 @@ const ProductsPage = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 border ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 border whitespace-nowrap flex-shrink-0 ${
                     isSelected
                       ? 'bg-[#FF1E27] text-white border-[#FF1E27] shadow-lg shadow-[#FF1E27]/25'
                       : 'bg-[#121220] text-[#8E92B2] hover:text-white border-[#232338] hover:border-[#FF1E27]/50'
@@ -222,7 +222,7 @@ const ProductsPage = () => {
                   {isSelected && <Check size={14} />}
                   {cat.name}
                   {catCount > 0 && (
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${isSelected ? 'bg-black/20' : 'bg-white/5 text-[#5A5E7A]'}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${isSelected ? 'bg-black/20 text-white' : 'bg-white/5 text-[#8E92B2]'}`}>
                       {catCount}
                     </span>
                   )}
@@ -273,6 +273,7 @@ const ProductsPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {filteredProducts.map((product: any, idx: number) => {
             const badge = getProductBadge(idx);
+            const isSoldOut = product.isSoldOut || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
             const discountPct = product.originalPrice && product.originalPrice > product.price
               ? Math.round((1 - product.price / product.originalPrice) * 100)
               : 0;
@@ -284,8 +285,8 @@ const ProductsPage = () => {
               >
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
-                  {badge && <span className={badge.className}>{badge.label}</span>}
-                  {discountPct > 0 && <span className="discount-badge">-{discountPct}%</span>}
+                  {badge && !isSoldOut && <span className={badge.className}>{badge.label}</span>}
+                  {discountPct > 0 && !isSoldOut && <span className="discount-badge">-{discountPct}%</span>}
                 </div>
 
                 {/* Image */}
@@ -298,18 +299,27 @@ const ProductsPage = () => {
                       t.onerror = null;
                       t.src = 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=400';
                     }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isSoldOut ? 'grayscale brightness-75' : ''}`}
                   />
 
-                  {/* Quick add overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-3">
-                    <button
-                      onClick={(e) => handleAddToCart(product, e)}
-                      className="bg-[#FF1E27] text-white text-xs font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-lg active:scale-95 transition-transform"
-                    >
-                      <ShoppingBag size={14} /> Thêm Vào Giỏ
-                    </button>
-                  </div>
+                  {/* Out of Stock Overlay */}
+                  {isSoldOut ? (
+                    <div className="absolute inset-0 bg-[#07070C]/80 backdrop-blur-xs flex flex-col items-center justify-center z-20 p-2 text-center">
+                      <span className="bg-[#FF1E27] text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-lg border border-white/20">
+                        HẾT HÀNG
+                      </span>
+                    </div>
+                  ) : (
+                    /* Quick add overlay */
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-3">
+                      <button
+                        onClick={(e) => handleAddToCart(product, e)}
+                        className="bg-[#FF1E27] text-white text-xs font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-lg active:scale-95 transition-transform"
+                      >
+                        <ShoppingBag size={14} /> Thêm Vào Giỏ
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1 space-y-2">
@@ -336,9 +346,14 @@ const ProductsPage = () => {
                     <span className="text-base font-bold text-[#FF1E27]">{formatVND(product.price)}</span>
                   </div>
                   <button
-                    onClick={(e) => handleAddToCart(product, e)}
-                    className="p-2.5 rounded-xl bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-[#FF1E27] hover:text-white transition-all active:scale-90"
-                    title="Thêm vào giỏ"
+                    disabled={isSoldOut}
+                    onClick={(e) => !isSoldOut && handleAddToCart(product, e)}
+                    className={`p-2.5 rounded-xl transition-all ${
+                      isSoldOut 
+                        ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' 
+                        : 'bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-[#FF1E27] hover:text-white active:scale-90'
+                    }`}
+                    title={isSoldOut ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ"}
                   >
                     <ShoppingBag size={16} />
                   </button>

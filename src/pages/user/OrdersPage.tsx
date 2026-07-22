@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Package, ChevronRight, Clock, CheckCircle2, XCircle, PackageX, ShoppingBag, X, MapPin, Wallet, Loader2 } from 'lucide-react';
@@ -21,23 +22,36 @@ const OrdersPage = () => {
       } catch (e) {
         return [];
       }
-    }
+    },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const orders = Array.isArray(ordersData) ? ordersData : (ordersData?.items || []);
 
-  const getStatusLabel = (status: string) => {
-    switch (status?.toLowerCase()) {
+  const getStatusLabel = (order: any) => {
+    const status = typeof order === 'string' ? order?.toLowerCase() : order?.status?.toLowerCase();
+    const payMethod = typeof order === 'object' ? order?.paymentMethod?.toLowerCase() || '' : '';
+    const isCod = payMethod.includes('cod') || payMethod.includes('nhận hàng');
+
+    if (isCod && status !== 'paid' && status !== 'completed' && status !== 'delivered' && status !== 'cancelled') {
+      return 'Chờ thu tiền khi giao (COD)';
+    }
+
+    switch (status) {
       case 'paid':
         return 'Đã thanh toán';
       case 'delivered':
       case 'completed':
-        return 'Đã giao hàng';
+        return 'Đã hoàn thành';
+      case 'shipping':
+        return 'Đang giao hàng';
       case 'processing':
         return 'Đang xử lý';
       case 'pending':
+        return isCod ? 'Chờ thu tiền khi giao (COD)' : 'Đang xử lý';
       case 'awaitingpayment':
-        return 'Chờ thanh toán';
+        return isCod ? 'Chờ thu tiền khi giao (COD)' : 'Chờ thanh toán';
       case 'cancelled':
         return 'Đã hủy';
       default:
@@ -45,16 +59,31 @@ const OrdersPage = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
+  const getStatusColor = (order: any) => {
+    const status = typeof order === 'string' ? order?.toLowerCase() : order?.status?.toLowerCase();
+    const payMethod = typeof order === 'object' ? order?.paymentMethod?.toLowerCase() || '' : '';
+    const isCod = payMethod.includes('cod') || payMethod.includes('nhận hàng');
+
+    if (isCod && status !== 'paid' && status !== 'completed' && status !== 'delivered' && status !== 'cancelled') {
+      return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+    }
+
+    switch (status) {
       case 'delivered':
       case 'completed':
       case 'paid':
         return 'text-green-400 bg-green-500/10 border-green-500/20';
+      case 'shipping':
+        return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
       case 'processing':
       case 'pending':
+        return isCod 
+          ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' 
+          : 'text-amber-400 bg-amber-500/10 border-amber-500/20';
       case 'awaitingpayment':
-        return 'text-[#FF1E27] bg-[#FF1E27]/10 border-[#FF1E27]/20';
+        return isCod 
+          ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20'
+          : 'text-[#FF1E27] bg-[#FF1E27]/10 border-[#FF1E27]/20';
       case 'cancelled':
         return 'text-red-400 bg-red-500/10 border-red-500/20';
       default:
@@ -99,14 +128,14 @@ const OrdersPage = () => {
 
   const STATUS_TABS = [
     { key: 'all', label: 'Tất Cả', count: orders.length },
-    { key: 'pending', label: 'Chờ Thanh Toán', count: orders.filter((o: any) => ['pending','awaitingpayment'].includes(o.status?.toLowerCase())).length },
+    { key: 'pending', label: 'Chờ Thanh Toán', count: orders.filter((o: any) => ['awaitingpayment'].includes(o.status?.toLowerCase())).length },
     { key: 'paid', label: 'Đã Thanh Toán', count: orders.filter((o: any) => ['paid','delivered','completed'].includes(o.status?.toLowerCase())).length },
     { key: 'cancelled', label: 'Đã Hủy', count: orders.filter((o: any) => o.status?.toLowerCase() === 'cancelled').length },
   ];
 
   const filteredOrders = statusFilter === 'all' ? orders : orders.filter((o: any) => {
     const s = o.status?.toLowerCase();
-    if (statusFilter === 'pending') return ['pending', 'awaitingpayment', 'processing'].includes(s);
+    if (statusFilter === 'pending') return ['awaitingpayment'].includes(s);
     if (statusFilter === 'paid') return ['paid', 'delivered', 'completed'].includes(s);
     if (statusFilter === 'cancelled') return s === 'cancelled';
     return true;
@@ -179,20 +208,26 @@ const OrdersPage = () => {
                 className="bg-[#0D0D16] border border-[#1A1A2A] hover:border-[#FF1E27]/50 p-5 rounded-2xl cursor-pointer transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-4">
-                  {/* First product thumbnail */}
-                  {firstItem?.imageUrl && (
-                    <div className="w-14 h-14 flex-shrink-0 rounded-xl bg-[#08080E] border border-[#1E1E2E] overflow-hidden p-1">
-                      <img src={firstItem.imageUrl} alt={firstItem.productName} className="w-full h-full object-contain" />
-                    </div>
-                  )}
+                  <div className="w-14 h-14 flex-shrink-0 rounded-xl bg-[#08080E] border border-[#1E1E2E] overflow-hidden p-1 flex items-center justify-center">
+                    <img 
+                      src={firstItem?.imageUrl || firstItem?.productImageUrl || "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=200"} 
+                      alt={firstItem?.productName || 'Sản phẩm'} 
+                      onError={(e) => {
+                        const t = e.target as HTMLImageElement;
+                        t.onerror = null;
+                        t.src = 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=200';
+                      }}
+                      className="w-full h-full object-contain" 
+                    />
+                  </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-white text-sm">
                         {order.orderNumber || order.orderCode || `FS-${(order.id || '').substring(0, 8).toUpperCase()}`}
                       </span>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusColor(order.status)}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusColor(order)}`}>
                         {getStatusIcon(order.status)}
-                        {getStatusLabel(order.status)}
+                        {getStatusLabel(order)}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-[#5A5E7A]">
@@ -220,20 +255,18 @@ const OrdersPage = () => {
         </div>
       )}
 
-      {/* ORDER DETAIL MODAL */}
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-[#0D0D16] border border-[#232338] rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      {selectedOrder && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-[#07070C]/95 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-2xl bg-[#0D0D16] border border-[#232338] rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col z-[100000]">
             
-            {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#1E1E2E] flex-shrink-0">
               <div>
                 <div className="text-xs text-[#8E92B2]">Chi Tiết Đơn Hàng</div>
-                <h2 className="text-xl font-mono font-bold text-white flex items-center gap-3">
+                <h2 className="text-xl font-mono font-bold text-white flex items-center gap-3 mt-1">
                   {selectedOrder.orderNumber || selectedOrder.orderCode || `FS-${(selectedOrder.id || '').substring(0, 8).toUpperCase()}`}
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedOrder.status)}`}>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedOrder)}`}>
                     {getStatusIcon(selectedOrder.status)}
-                    {getStatusLabel(selectedOrder.status)}
+                    {getStatusLabel(selectedOrder)}
                   </span>
                 </h2>
               </div>
@@ -246,7 +279,6 @@ const OrdersPage = () => {
             </div>
 
             <div className="overflow-y-auto space-y-6 pr-1 flex-grow">
-              {/* Shipping Details */}
               <div className="bg-[#121220] p-4 rounded-xl border border-[#232338] space-y-2 text-sm">
                 <div className="font-semibold text-white mb-2 flex items-center gap-2">
                   <MapPin size={16} className="text-[#FF1E27]" />
@@ -274,14 +306,13 @@ const OrdersPage = () => {
                   </div>
                   <div>
                     <span className="text-gray-400 block text-xs">Trạng Thái Thanh Toán</span>
-                    <span className={`font-semibold text-xs inline-block mt-1 px-2 py-0.5 rounded border ${getStatusColor(selectedOrder.status)}`}>
-                      {getStatusLabel(selectedOrder.status)}
+                    <span className={`font-semibold text-xs inline-block mt-1 px-2 py-0.5 rounded border ${getStatusColor(selectedOrder)}`}>
+                      {getStatusLabel(selectedOrder)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Order Items Table */}
               <div className="space-y-3">
                 <div className="font-semibold text-white text-sm">Sản Phẩm Đã Đặt ({selectedOrder.items?.length || 0})</div>
                 <div className="divide-y divide-[#1E1E2E] border border-[#232338] rounded-xl overflow-hidden bg-[#121220]">
@@ -290,21 +321,26 @@ const OrdersPage = () => {
                       const rawItemPrice = Number(item.unitPrice) || 3490000;
                       const convertedItemPrice = rawItemPrice < 10000 ? rawItemPrice * 25000 : rawItemPrice;
                       return (
-                        <div key={item.id || item.productId} className="p-4 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
+                        <div key={item.id || item.productId} className="p-4 flex items-center justify-between gap-4 bg-[#0D0D16]/60">
+                          <div className="flex items-center gap-3 overflow-hidden">
                             <img 
-                              src={item.imageUrl || "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=200"} 
-                              alt={item.productName} 
-                              className="w-12 h-12 rounded-lg object-contain bg-[#08080E] p-1 border border-[#232338]" 
+                              src={item.imageUrl || item.productImageUrl || "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=200"} 
+                              alt={item.productName || 'Sản phẩm'} 
+                              onError={(e) => {
+                                const t = e.target as HTMLImageElement;
+                                t.onerror = null;
+                                t.src = 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=200';
+                              }}
+                              className="w-12 h-12 rounded-lg object-contain bg-[#08080E] p-1 border border-[#232338] flex-shrink-0" 
                             />
-                            <div>
-                              <div className="font-medium text-white text-sm">{item.productName || 'Sản phẩm'}</div>
-                              <div className="text-xs text-[#8E92B2]">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-white text-sm truncate">{item.productName || 'Sản phẩm'}</div>
+                              <div className="text-xs text-[#8E92B2] mt-0.5">
                                 Số lượng: {item.quantity} × {formatVND(convertedItemPrice)}
                               </div>
                             </div>
                           </div>
-                          <div className="font-bold text-white">{formatVND(convertedItemPrice * item.quantity)}</div>
+                          <div className="font-bold text-white text-sm whitespace-nowrap">{formatVND(convertedItemPrice * item.quantity)}</div>
                         </div>
                       );
                     })
@@ -315,7 +351,6 @@ const OrdersPage = () => {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-4 border-t border-[#1E1E2E] flex-shrink-0 flex items-center justify-between gap-4">
               <div>
                 <span className="text-xs text-[#8E92B2] block">Tổng Thành Tiền</span>
@@ -324,29 +359,51 @@ const OrdersPage = () => {
                 </span>
               </div>
 
-              {(selectedOrder.status?.toLowerCase() === 'awaitingpayment' || selectedOrder.status?.toLowerCase() === 'pending') && (
-                <button 
-                  onClick={() => handlePayOrder(selectedOrder.id)}
-                  disabled={isPaying}
-                  className="bg-[#FF1E27] hover:bg-[#E02424] text-[#FFFFFF] py-3 px-6 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md active:scale-95"
-                >
-                  {isPaying ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Đang Thanh Toán...
-                    </>
-                  ) : (
-                    <>
-                      <Wallet size={18} />
-                      Thanh Toán Qua Ví FlashPay
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
+              {(() => {
+                const payMethod = selectedOrder.paymentMethod?.toLowerCase() || '';
+                const isCod = payMethod.includes('cod') || payMethod.includes('nhận hàng');
+                const status = selectedOrder.status?.toLowerCase();
 
+                if (isCod) {
+                  if (status !== 'paid' && status !== 'completed' && status !== 'delivered' && status !== 'cancelled') {
+                    return (
+                      <div className="flex items-center gap-2 text-cyan-400 text-xs font-semibold bg-cyan-500/10 border border-cyan-500/20 px-4 py-2.5 rounded-xl">
+                        <Package size={16} />
+                        <span>Đơn hàng đang chuẩn bị & thu tiền tận nơi khi giao (COD)</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                }
+
+                if (status === 'awaitingpayment' || status === 'pending') {
+                  return (
+                    <button 
+                      onClick={() => handlePayOrder(selectedOrder.id)}
+                      disabled={isPaying}
+                      className="bg-[#FF1E27] hover:bg-[#E02424] text-[#FFFFFF] py-3 px-6 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+                    >
+                      {isPaying ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          Đang Thanh Toán...
+                        </>
+                      ) : (
+                        <>
+                          <Wallet size={18} />
+                          Thanh Toán Qua Ví FlashPay
+                        </>
+                      )}
+                    </button>
+                  );
+                }
+
+                return null;
+              })()}
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

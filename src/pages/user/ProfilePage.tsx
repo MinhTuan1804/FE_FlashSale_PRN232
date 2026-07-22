@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../../api/axiosClient';
+import MaintenanceOverlay from '../../components/MaintenanceOverlay';
 import { formatVND } from './HomePage';
 
 const ProfilePage = () => {
@@ -25,6 +26,13 @@ const ProfilePage = () => {
   const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
   const pushTestNotification = useNotificationStore((state) => state.pushTestNotification);
   const clearAll = useNotificationStore((state) => state.clearAll);
+  const fetchServerNotifications = useNotificationStore((state) => state.fetchServerNotifications);
+
+  useEffect(() => {
+    fetchServerNotifications();
+  }, [fetchServerNotifications]);
+
+  const displayNotifications = notifications;
 
   // Profile Shipping Information State
   const [recipientName, setRecipientName] = useState('');
@@ -67,19 +75,21 @@ const ProfilePage = () => {
 
   // Fetch real wallet balance from Identity API
   const { data: walletData, isLoading: isWalletLoading } = useQuery({
-    queryKey: ['my-wallet'],
+    queryKey: ['my-wallet', user?.id || user?.email],
     queryFn: async () => {
       try {
         const res: any = await axiosClient.get('/wallets/my-wallet');
-        const raw = res.data?.balance ?? res?.balance ?? 100000000;
+        const raw = res.data?.balance ?? res?.balance ?? 0;
         return { balance: Number(raw) };
       } catch (e) {
-        return { balance: 100000000 };
+        return { balance: 0 };
       }
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
-  const walletBalance = walletData?.balance ?? 100000000;
+  const walletBalance = walletData?.balance ?? 0;
 
   const handleLogout = () => {
     logout();
@@ -88,24 +98,24 @@ const ProfilePage = () => {
   };
 
   const handleTopUpAmount = async (amount: number) => {
+    if (isTopUpLoading) return;
     setIsTopUpLoading(true);
     try {
-      await axiosClient.post('/wallets/topup', { amount });
-      toast.success(`Nạp thành công +${formatVND(amount)} vào ví của bạn!`);
-      queryClient.invalidateQueries({ queryKey: ['my-wallet'] });
-    } catch (e: any) {
-      toast.success(`Nạp thành công +${formatVND(amount)} vào ví điện tử FlashPay!`);
-      queryClient.setQueryData(['my-wallet'], (old: any) => ({
-        balance: (old?.balance || 100000000) + amount
-      }));
-    } finally {
-      setIsTopUpLoading(false);
-    }
-  };
+      const res: any = await axiosClient.post('/wallets/topup', { amount });
+      const walletPayload = res.data || res;
+      const updatedBalance = walletPayload?.balance ?? walletPayload?.data?.balance;
 
-  const handlePushTestNotification = () => {
-    pushTestNotification();
-    toast.success('Đã đẩy 1 thông báo test mới thành công!');
+      if (updatedBalance !== undefined) {
+        queryClient.setQueryData(['my-wallet'], { balance: Number(updatedBalance) });
+      }
+      queryClient.invalidateQueries({ queryKey: ['my-wallet'] });
+      toast.success(`Nạp thành công +${formatVND(amount)} vào ví FlashPay!`);
+    } catch (e: any) {
+      const errorMsg = e.response?.data?.message || 'Nạp tiền thất bại. Vui lòng đăng nhập lại.';
+      toast.error(errorMsg);
+    } finally {
+      setTimeout(() => setIsTopUpLoading(false), 500);
+    }
   };
 
   if (!user) {
@@ -311,6 +321,7 @@ const ProfilePage = () => {
 
               {/* 50M VIP BUTTON */}
               <button 
+                type="button"
                 onClick={() => handleTopUpAmount(50000000)}
                 disabled={isTopUpLoading}
                 className="w-full py-5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-[#FF1E27] text-black font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg hover:shadow-amber-500/30 flex items-center justify-center gap-3 border-2 border-yellow-300"
@@ -327,6 +338,7 @@ const ProfilePage = () => {
 
               <div className="grid grid-cols-3 gap-4">
                 <button 
+                  type="button"
                   onClick={() => handleTopUpAmount(1000000)}
                   disabled={isTopUpLoading}
                   className="py-3 rounded-xl bg-[#121220] border border-[#232338] hover:border-[#FF1E27] text-white font-bold transition-all text-sm"
@@ -334,6 +346,7 @@ const ProfilePage = () => {
                   +1.000.000 ₫
                 </button>
                 <button 
+                  type="button"
                   onClick={() => handleTopUpAmount(5000000)}
                   disabled={isTopUpLoading}
                   className="py-3 rounded-xl bg-[#121220] border border-[#232338] hover:border-[#FF1E27] text-white font-bold transition-all text-sm"
@@ -341,6 +354,7 @@ const ProfilePage = () => {
                   +5.000.000 ₫
                 </button>
                 <button 
+                  type="button"
                   onClick={() => handleTopUpAmount(10000000)}
                   disabled={isTopUpLoading}
                   className="py-3 rounded-xl bg-[#121220] border border-[#232338] hover:border-[#FF1E27] text-white font-bold transition-all text-sm"
@@ -354,92 +368,83 @@ const ProfilePage = () => {
 
         {/* Dynamic Real-time Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1E1E2E] pb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Bell size={24} className="text-[#FF1E27]" /> Thông Báo Hệ Thống
-                </h1>
-                <p className="text-xs text-[#8E92B2] mt-1">Danh sách thông báo khuyến mãi, đơn hàng và sự kiện Flash Sale.</p>
-              </div>
+          <MaintenanceOverlay serviceName="notification">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1E1E2E] pb-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <Bell size={24} className="text-[#FF1E27]" /> Thông Báo Hệ Thống
+                  </h1>
+                  <p className="text-xs text-[#8E92B2] mt-1">Danh sách thông báo khuyến mãi, đơn hàng và sự kiện Flash Sale.</p>
+                </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handlePushTestNotification}
-                  className="bg-gradient-to-r from-[#FF1E27] to-[#E02424] hover:shadow-[0_5px_20px_rgba(255,30,39,0.5)] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95"
-                >
-                  <Send size={14} />
-                  <span>PUSH THÔNG BÁO TEST</span>
-                </button>
-
-                {notifications.length > 0 && (
-                  <button
-                    onClick={markAllAsRead}
-                    className="bg-[#121220] hover:bg-[#1C1C30] border border-[#232338] text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors"
-                  >
-                    <Check size={14} /> Đánh Dấu Đã Đọc
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Notification Cards List */}
-            {notifications.length === 0 ? (
-              <div className="text-center py-16 text-[#8E92B2]">
-                <Bell size={48} className="mx-auto mb-4 opacity-20" />
-                <p className="text-sm font-medium">Bạn chưa có thông báo mới nào.</p>
-                <button
-                  onClick={handlePushTestNotification}
-                  className="mt-4 bg-[#FF1E27]/20 border border-[#FF1E27]/40 text-[#FF1E27] text-xs font-bold px-4 py-2 rounded-full inline-flex items-center gap-1.5 hover:bg-[#FF1E27] hover:text-white transition-colors"
-                >
-                  <Send size={12} /> Tạo thông báo thử nghiệm ngay
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {notifications.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => markAsRead(item.id)}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
-                      item.isRead
-                        ? 'bg-[#08080E]/60 border-[#1A1A2A] opacity-75'
-                        : 'bg-[#121220] border-[#FF1E27]/40 shadow-lg'
-                    }`}
-                  >
-                    <div className="p-3 rounded-2xl bg-[#1A1A2A] text-[#FF1E27] flex-shrink-0">
-                      {item.type === 'flash_sale' && <Zap size={20} className="fill-[#FF1E27]" />}
-                      {item.type === 'voucher' && <Tag size={20} className="text-amber-400" />}
-                      {item.type === 'order' && <Package size={20} className="text-emerald-400" />}
-                      {item.type === 'system' && <Sparkles size={20} className="text-purple-400" />}
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-extrabold text-sm text-white flex items-center gap-2">
-                          {item.title}
-                          {!item.isRead && (
-                            <span className="w-2 h-2 rounded-full bg-[#FF1E27] animate-pulse" />
-                          )}
-                        </h4>
-                        <span className="text-xs text-[#5A5E7A] font-mono">{item.timestamp}</span>
-                      </div>
-                      <p className="text-xs text-[#8E92B2] mt-1.5 leading-relaxed">{item.message}</p>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="pt-4 flex justify-end">
-                  <button
-                    onClick={clearAll}
-                    className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold transition-colors"
-                  >
-                    <Trash2 size={14} /> Xóa tất cả thông báo
-                  </button>
+                <div className="flex items-center gap-3">
+                  {displayNotifications.length > 0 && (
+                    <button
+                      onClick={() => {
+                        markAllAsRead();
+                        toast.success('Đã đánh dấu tất cả thông báo là đã đọc!');
+                      }}
+                      className="bg-[#121220] hover:bg-[#1C1C30] border border-[#232338] text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Check size={14} /> Đánh Dấu Đã Đọc ({unreadCount})
+                    </button>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Notification Cards List */}
+              {displayNotifications.length === 0 ? (
+                <div className="text-center py-16 text-[#8E92B2]">
+                  <Bell size={48} className="mx-auto mb-4 opacity-20" />
+                  <p className="text-sm font-medium">Bạn chưa có thông báo mới nào.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {displayNotifications.map((item: any) => (
+                    <div
+                      key={item.id}
+                      onClick={() => markAsRead(item.id)}
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
+                        item.isRead
+                          ? 'bg-[#08080E]/60 border-[#1A1A2A] opacity-75'
+                          : 'bg-[#121220] border-[#FF1E27]/40 shadow-lg'
+                      }`}
+                    >
+                      <div className="p-3 rounded-2xl bg-[#1A1A2A] text-[#FF1E27] flex-shrink-0">
+                        {item.type === 'flash_sale' && <Zap size={20} className="fill-[#FF1E27]" />}
+                        {item.type === 'voucher' && <Tag size={20} className="text-amber-400" />}
+                        {item.type === 'order' && <Package size={20} className="text-emerald-400" />}
+                        {item.type === 'system' && <Sparkles size={20} className="text-purple-400" />}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap md:flex-nowrap items-start justify-between gap-2">
+                          <h4 className="font-extrabold text-sm text-white flex items-center gap-2 flex-1">
+                            <span>{item.title}</span>
+                            {!item.isRead && (
+                              <span className="w-2 h-2 rounded-full bg-[#FF1E27] animate-pulse flex-shrink-0" />
+                            )}
+                          </h4>
+                          <span className="text-[11px] text-[#5A5E7A] font-mono flex-shrink-0 whitespace-nowrap ml-auto">{item.timestamp}</span>
+                        </div>
+                        <p className="text-xs text-[#8E92B2] mt-1.5 leading-relaxed break-words">{item.message}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="pt-4 flex justify-end">
+                    <button
+                      onClick={clearAll}
+                      className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold transition-colors"
+                    >
+                      <Trash2 size={14} /> Xóa tất cả thông báo
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </MaintenanceOverlay>
         )}
       </div>
     </div>

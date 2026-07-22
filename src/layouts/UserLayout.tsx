@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { Zap, Globe, ShieldCheck, Truck, RotateCcw, Phone, ExternalLink } from 'lucide-react';
+import { Zap, Globe, ShieldCheck, Truck, RotateCcw, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const TICKER_ITEMS = [
@@ -12,11 +13,154 @@ const TICKER_ITEMS = [
   '🔥 Thanh toán qua Ví FlashPay — Hoàn tiền 5%',
 ];
 
+// Global Interactive Mouse Particle Effect Canvas across Entire Background
+const GlobalMouseParticlesCanvas = () => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const mouse = { x: -1000, y: -1000, radius: 160 };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Create 75 particles across full viewport
+    const particleCount = 75;
+    const particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      color: string;
+      alpha: number;
+    }> = [];
+
+    const colors = ['#FF1E27', '#FFB800', '#A855F7', '#E02424', '#38BDF8'];
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
+        radius: Math.random() * 2 + 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: Math.random() * 0.5 + 0.3
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Render & update particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Particle dot with glow
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Mouse attraction constellation lines
+        if (dist < mouse.radius) {
+          const lineAlpha = (1 - dist / mouse.radius) * 0.55;
+          ctx.save();
+          ctx.strokeStyle = '#FF1E27';
+          ctx.globalAlpha = lineAlpha;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Particle to particle connections
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const pdx = p.x - p2.x;
+          const pdy = p.y - p2.y;
+          const pDist = Math.sqrt(pdx * pdx + pdy * pdy);
+
+          if (pDist < 90) {
+            ctx.save();
+            ctx.strokeStyle = p.color;
+            ctx.globalAlpha = (1 - pDist / 90) * 0.15;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 overflow-hidden" />;
+};
+
 const UserLayout = () => {
   const tickerText = TICKER_ITEMS.join('   •   ') + '   •   ' + TICKER_ITEMS.join('   •   ');
 
   return (
-    <div className="min-h-screen flex flex-col text-text-primary">
+    <div className="min-h-screen flex flex-col text-text-primary relative bg-transparent">
+      {/* Global Interactive Mouse Particle Background */}
+      <GlobalMouseParticlesCanvas />
 
       {/* ─── Marquee Ticker ─── */}
       <div className="bg-[#FF1E27] py-1.5 overflow-hidden relative z-50">
@@ -29,12 +173,12 @@ const UserLayout = () => {
 
       <Navbar />
 
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <Outlet />
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-[#1A1A2A] mt-8 bg-transparent">
+      <footer className="border-t border-[#1A1A2A] mt-8 bg-transparent relative z-10">
 
         {/* Trust bar */}
         <div className="border-b border-[#1A1A2A] py-5">
@@ -97,82 +241,51 @@ const UserLayout = () => {
                 <a href="#" title="Instagram" className="w-9 h-9 rounded-full bg-[#121220] border border-[#232338] flex items-center justify-center text-[#8E92B2] hover:text-[#FF1E27] hover:border-[#FF1E27] transition-colors">
                   <Globe size={15} />
                 </a>
-                <a href="#" title="Twitter/X" className="w-9 h-9 rounded-full bg-[#121220] border border-[#232338] flex items-center justify-center text-[#8E92B2] hover:text-[#FF1E27] hover:border-[#FF1E27] transition-colors">
-                  <ExternalLink size={15} />
-                </a>
               </div>
             </div>
 
-            {/* Column 2 — Liên Kết */}
+            {/* Column 2 — Categories */}
             <div className="space-y-4">
-              <h4 className="text-white font-bold text-sm uppercase tracking-wider">Liên Kết Nhanh</h4>
-              <ul className="space-y-2.5 text-sm text-[#8E92B2]">
-                <li><Link to="/" className="hover:text-[#FF1E27] transition-colors">Trang Chủ</Link></li>
-                <li><Link to="/products" className="hover:text-[#FF1E27] transition-colors">Tất Cả Sản Phẩm</Link></li>
-                <li><Link to="/flash-sale" className="hover:text-[#FF1E27] transition-colors">Flash Sale</Link></li>
-                <li><Link to="/hot-deals" className="hover:text-[#FF1E27] transition-colors">Ưu Đãi Hot</Link></li>
-                <li><Link to="/cart" className="hover:text-[#FF1E27] transition-colors">Giỏ Hàng</Link></li>
-                <li><Link to="/orders" className="hover:text-[#FF1E27] transition-colors">Đơn Hàng Của Tôi</Link></li>
+              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Danh Mục Flash Sale</h4>
+              <ul className="space-y-2.5 text-xs text-[#8E92B2]">
+                <li><Link to="/products" className="hover:text-white transition-colors">Thiết Bị Điện Tử & Gaming</Link></li>
+                <li><Link to="/products" className="hover:text-white transition-colors">Máy Tính & Laptop</Link></li>
+                <li><Link to="/products" className="hover:text-white transition-colors">Tai Nghe & Âm Thanh</Link></li>
+                <li><Link to="/products" className="hover:text-white transition-colors">Đồng Hồ Thông Minh</Link></li>
+                <li><Link to="/products" className="hover:text-white transition-colors">Phụ Kiện Công Nghệ</Link></li>
               </ul>
             </div>
 
-            {/* Column 3 — Hỗ Trợ */}
+            {/* Column 3 — Customer Support */}
             <div className="space-y-4">
-              <h4 className="text-white font-bold text-sm uppercase tracking-wider">Hỗ Trợ Khách Hàng</h4>
-              <ul className="space-y-2.5 text-sm text-[#8E92B2]">
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Trung Tâm Hỗ Trợ</a></li>
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Chính Sách Đổi Trả</a></li>
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Bảo Hành Sản Phẩm</a></li>
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Tra Cứu Đơn Hàng</a></li>
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Hướng Dẫn Thanh Toán</a></li>
-                <li><a href="#" className="hover:text-[#FF1E27] transition-colors">Liên Hệ Chúng Tôi</a></li>
+              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Hỗ Trợ Khách Hàng</h4>
+              <ul className="space-y-2.5 text-xs text-[#8E92B2]">
+                <li><a href="#" className="hover:text-white transition-colors">Hướng dẫn mua hàng Flash Sale</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Chính sách bảo hành 1 đổi 1</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Chính sách đổi trả & hoàn tiền</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Phương thức thanh toán FlashPay</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Tra cứu vận chuyển đơn hàng</a></li>
               </ul>
             </div>
 
-            {/* Column 4 — Liên Hệ */}
+            {/* Column 4 — Contact */}
             <div className="space-y-4">
-              <h4 className="text-white font-bold text-sm uppercase tracking-wider">Thông Tin Liên Hệ</h4>
-              <ul className="space-y-3 text-sm text-[#8E92B2]">
-                <li className="leading-relaxed">
-                  <span className="text-white font-semibold block text-xs uppercase mb-1">Địa Chỉ</span>
-                  123 Đường Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh
-                </li>
-                <li>
-                  <span className="text-white font-semibold block text-xs uppercase mb-1">Hotline</span>
-                  1800-FLASH (Miễn phí, 8:00–22:00)
-                </li>
-                <li>
-                  <span className="text-white font-semibold block text-xs uppercase mb-1">Email</span>
-                  support@flashshop.vn
-                </li>
-              </ul>
-
-              {/* Trust badges */}
-              <div className="pt-2 space-y-2">
-                <div className="flex items-center gap-2 text-[10px] text-[#5A5E7A]">
-                  <ShieldCheck size={14} className="text-green-500" />
-                  <span>Đã xác thực Bộ Công Thương</span>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-[#5A5E7A]">
-                  <ShieldCheck size={14} className="text-green-500" />
-                  <span>SSL 256-bit Encrypted</span>
-                </div>
+              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Tổng Đài Chăm Sóc</h4>
+              <div className="space-y-2 text-xs text-[#8E92B2]">
+                <p className="font-extrabold text-base text-[#FF1E27]">1800-FLASH (1800 3527)</p>
+                <p>Thời gian làm việc: 08:00 - 22:00 hàng ngày</p>
+                <p>Email: support@flashshop.vn</p>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-[#1A1A2A] py-5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-[#5A5E7A]">
-            <p>&copy; {new Date().getFullYear()} FlashShop. Tất cả quyền được bảo lưu.</p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-[#8E92B2] transition-colors">Điều Khoản Sử Dụng</a>
-              <a href="#" className="hover:text-[#8E92B2] transition-colors">Chính Sách Bảo Mật</a>
-              <a href="#" className="hover:text-[#8E92B2] transition-colors">Cookie</a>
-            </div>
-          </div>
+        {/* Bottom copyright */}
+        <div className="border-t border-[#1A1A2A] py-6 text-center text-xs text-[#8E92B2]">
+          © 2026 FlashShop. All rights reserved. Built for PRN232 Assignment High-End E-Commerce.
         </div>
+
       </footer>
     </div>
   );

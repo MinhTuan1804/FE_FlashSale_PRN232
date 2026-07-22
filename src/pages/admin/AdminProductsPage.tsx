@@ -4,6 +4,7 @@ import {
   Package, Search, Plus, Edit2, Trash2, X, Check, Loader2, Star
 } from 'lucide-react';
 import { getProducts, getCategories } from '../../api/catalog.api';
+import { adminCreateProduct, adminUpdateProduct, adminDeleteProduct } from '../../api/admin.api';
 import toast from 'react-hot-toast';
 import { formatVND } from '../user/HomePage';
 
@@ -77,7 +78,7 @@ const AdminProductsPage = () => {
         price: (product.price || 3490000).toString(),
         originalPrice: (product.originalPrice || product.price * 1.3).toString(),
         categoryId: (product.categoryId || '1').toString(),
-        stock: (product.stock || 50).toString(),
+        stock: (product.stockQuantity !== undefined ? product.stockQuantity : (product.stock || 15)).toString(),
         imageUrl: product.imageUrl || '',
         description: product.description || ''
       });
@@ -96,28 +97,48 @@ const AdminProductsPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price) {
       toast.error('Vui lòng nhập đầy đủ tên và giá sản phẩm!');
       return;
     }
 
-    if (editingProduct) {
-      toast.success(`Đã cập nhật sản phẩm "${formData.name}" thành công!`);
-    } else {
-      toast.success(`Đã thêm sản phẩm mới "${formData.name}" thành công!`);
-    }
-    setIsModalOpen(false);
-    queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-    queryClient.invalidateQueries({ queryKey: ['products'] });
-  };
+    const payload = {
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      price: Number(formData.price) || 0,
+      imageUrl: formData.imageUrl.trim() || undefined,
+      categoryId: Number(formData.categoryId) || 1,
+      stockQuantity: Number(formData.stock) || 15
+    };
 
-  const handleDeleteProduct = (_id: string, name: string) => {
-    if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${name}"?`)) {
-      toast.success(`Đã xóa sản phẩm "${name}"!`);
+    try {
+      if (editingProduct) {
+        await adminUpdateProduct(editingProduct.id, payload);
+        toast.success(`Đã cập nhật sản phẩm "${formData.name}" thành công!`);
+      } else {
+        await adminCreateProduct(payload);
+        toast.success(`Đã thêm sản phẩm mới "${formData.name}" thành công!`);
+      }
+      setIsModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
+    } catch {
+      toast.error('Lưu sản phẩm thất bại.');
+    }
+  };
+
+  const handleDeleteProduct = async (id: string, name: string) => {
+    if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${name}"?`)) {
+      try {
+        await adminDeleteProduct(id);
+        toast.success(`Đã xóa sản phẩm "${name}"!`);
+        queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+      } catch {
+        toast.error('Xóa sản phẩm thất bại.');
+      }
     }
   };
 
@@ -222,11 +243,23 @@ const AdminProductsPage = () => {
                       {formatVND(product.price)}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] border ${
-                        (product.stock || 50) < 5 ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-white/10 text-white border-white/20'
-                      }`}>
-                        {(product.stock || 50) < 5 ? `Sắp hết (${product.stock || 0})` : `Còn hàng (${product.stock || 50})`}
-                      </span>
+                      {(() => {
+                        const stockQty = product.stockQuantity !== undefined ? Number(product.stockQuantity) : (product.stock !== undefined ? Number(product.stock) : 15);
+                        const isOut = stockQty <= 0;
+                        const isLow = stockQty > 0 && stockQty < 5;
+
+                        return (
+                          <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] border ${
+                            isOut
+                              ? 'bg-red-500/20 text-red-400 border-red-500/40'
+                              : isLow
+                              ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          }`}>
+                            {isOut ? 'Hết hàng (0)' : isLow ? `Sắp hết (${stockQty})` : `Còn hàng (${stockQty})`}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1 text-white font-bold">

@@ -22,35 +22,28 @@ const LoginPage = () => {
 
     setIsLoading(true);
     try {
-      let payload: any = null;
-      try {
-        const res = await axiosClient.post('/auth/login', { email, password });
-        payload = (res as any).data || res;
-      } catch (err: any) {
-        console.warn('API auth login error, falling back to client authentication mode:', err);
-        payload = {
-          token: 'jwt-token-flashshop-' + Date.now(),
-          user: {
-            id: 'user-' + Date.now(),
-            email,
-            role: email.toLowerCase().includes('admin') ? 'Admin' : 'Customer'
-          }
-        };
+      const res: any = await axiosClient.post('/auth/login', { email, password });
+      const authData = res.data || res;
+      const token = authData.token || authData.accessToken;
+      const userObj = authData.user || authData;
+
+      if (!token) {
+        toast.error('Đăng nhập thất bại. Không nhận được mã xác thực token!');
+        return;
       }
 
-      const userObj = payload.user || payload;
-      const rawRole = userObj.role || payload.role || (email.toLowerCase().includes('admin') ? 'Admin' : 'Customer');
-      const isAdmin = rawRole.toString().toLowerCase() === 'admin' || email.toLowerCase().includes('admin');
+      const roles = Array.isArray(userObj.roles) ? userObj.roles : [userObj.role || 'Customer'];
+      const isAdmin = roles.some((r: any) => r?.toString().toLowerCase() === 'admin') || email.toLowerCase().includes('admin');
       const finalRole = isAdmin ? 'Admin' : 'Customer';
 
       setAuth(
         {
-          id: userObj.id || payload.userId || 'usr-' + Date.now(),
+          id: userObj.id || userObj.userId || 'usr-' + Date.now(),
           email: userObj.email || email,
           name: userObj.fullName || userObj.userName || email.split('@')[0],
           role: finalRole
         },
-        payload.token || 'jwt-token-flashshop-' + Date.now()
+        token
       );
 
       if (isAdmin) {
@@ -61,7 +54,7 @@ const LoginPage = () => {
         navigate('/');
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+      const message = error.response?.data?.message || 'Email hoặc mật khẩu không chính xác.';
       toast.error(message);
     } finally {
       setIsLoading(false);

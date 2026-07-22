@@ -172,26 +172,34 @@ const CartPage = () => {
               <Tag size={16} className="text-amber-400" /> Mã Giảm Giá / Voucher
             </h3>
             {appliedVoucher ? (
-              <div className="flex items-center justify-between bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-2.5">
-                <div>
-                  <span className="text-green-400 font-bold text-sm">{appliedVoucher}</span>
-                  <span className="text-green-400/70 text-xs ml-2">đã áp dụng</span>
+              <div className="relative flex items-center justify-between bg-gradient-to-r from-emerald-950/60 to-emerald-900/40 border border-emerald-500/40 rounded-xl px-3.5 py-2.5 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                  <span className="text-emerald-400 font-mono font-black text-xs uppercase tracking-wider">{appliedVoucher}</span>
+                  <span className="text-emerald-300/80 text-[11px] font-semibold">Đã áp dụng</span>
                 </div>
-                <button onClick={() => { setAppliedVoucher(null); setVoucherError(''); }} className="text-[#5A5E7A] hover:text-white transition-colors">
-                  <X size={16} />
+                <button 
+                  onClick={() => { setAppliedVoucher(null); setVoucherError(''); }} 
+                  className="text-emerald-400/60 hover:text-white p-1 rounded-lg hover:bg-emerald-500/20 transition-colors flex-shrink-0"
+                  title="Hủy mã giảm giá"
+                >
+                  <X size={15} />
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="relative flex items-center bg-[#121220] border border-[#232338] focus-within:border-[#FF1E27] rounded-xl p-1 transition-all">
                 <input
                   type="text"
                   placeholder="Nhập mã voucher..."
                   value={voucherInput}
                   onChange={(e) => { setVoucherInput(e.target.value.toUpperCase()); setVoucherError(''); }}
                   onKeyDown={(e) => e.key === 'Enter' && handleApplyVoucher()}
-                  className="flex-1 bg-[#121220] border border-[#232338] rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#FF1E27] transition-colors placeholder-[#5A5E7A] uppercase font-mono"
+                  className="w-full bg-transparent px-3 py-1.5 text-white text-xs font-mono outline-none placeholder-[#5A5E7A] uppercase min-w-0"
                 />
-                <button onClick={handleApplyVoucher} className="btn-secondary text-xs px-4 py-2.5 whitespace-nowrap">
+                <button 
+                  onClick={handleApplyVoucher} 
+                  className="bg-[#FF1E27] hover:bg-[#E02424] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex-shrink-0"
+                >
                   Áp dụng
                 </button>
               </div>
@@ -220,8 +228,15 @@ const CartPage = () => {
                 </div>
               )}
               {discount > 0 && (
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl px-3 py-2 text-xs text-green-400 flex items-center gap-2">
-                  <Tag size={12} /> Bạn tiết kiệm được <strong>{formatVND(discount)}</strong> với đơn hàng này!
+                <div className="bg-gradient-to-r from-emerald-950/60 via-[#121220] to-[#121220] border border-emerald-500/30 rounded-xl p-3 flex items-center gap-2.5 text-xs text-emerald-400 shadow-md">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 flex-shrink-0">
+                    <Tag size={14} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[#8E92B2]">Tiết kiệm: </span>
+                    <strong className="text-emerald-400 font-extrabold text-sm tracking-tight">{formatVND(discount)}</strong>
+                    <span className="text-[#8E92B2] text-[10px] block font-medium">Áp dụng mã ưu đãi thành công</span>
+                  </div>
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold text-white pt-3 border-t border-[#1E1E2E]">

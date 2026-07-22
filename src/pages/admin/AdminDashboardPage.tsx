@@ -10,22 +10,14 @@ import { formatVND } from '../user/HomePage';
 const AdminDashboardPage = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
-    queryFn: getAdminStats
+    queryFn: getAdminStats,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
-  const recentOrders = [
-    { id: 'FS-98A1B2C3', customer: 'Nguyễn Văn Anh', total: 20982500, status: 'Paid', date: '5 phút trước' },
-    { id: 'FS-44D2E5F6', customer: 'Trần Thị Bình', total: 3490000, status: 'Pending', date: '18 phút trước' },
-    { id: 'FS-12G3H4I5', customer: 'Lê Hoàng Cường', total: 18990000, status: 'Paid', date: '42 phút trước' },
-    { id: 'FS-77J8K9L0', customer: 'Phạm Minh Đức', total: 2890000, status: 'Paid', date: '1 giờ trước' },
-    { id: 'FS-33M4N5O6', customer: 'Vũ Thanh Hương', total: 5990000, status: 'Processing', date: '2 giờ trước' },
-  ];
-
-  const liveFlashProducts = [
-    { name: 'Apex Pro SteelSeries', sold: 88, total: 100, flashPrice: 3490000 },
-    { name: 'Razer Viper V3 Pro', sold: 94, total: 100, flashPrice: 2890000 },
-    { name: 'ROG Swift OLED 360Hz', sold: 100, total: 100, flashPrice: 18990000, soldOut: true },
-  ];
+  const recentOrders = stats?.recentOrders || [];
+  const liveFlashProducts = stats?.liveFlashProducts || [];
+  const maxWeeklyRev = Math.max(...(stats?.weeklyRevenue || []).map((i: any) => i.revenue), 1000000);
 
   return (
     <div className="space-y-8 pb-12 text-[#FAFAFA]">
@@ -66,10 +58,10 @@ const AdminDashboardPage = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {isLoading ? '...' : formatVND(stats?.totalRevenue || 1845000000)}
+            {isLoading ? '...' : formatVND(stats?.totalRevenue || 0)}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-white font-semibold">
-            <TrendingUp size={14} /> +18.4% so với tuần trước
+            <TrendingUp size={14} /> Cập nhật thực tế từ Hệ Thống
           </div>
         </div>
 
@@ -82,10 +74,10 @@ const AdminDashboardPage = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {isLoading ? '...' : (stats?.totalOrders || 1420).toLocaleString('vi-VN')}
+            {isLoading ? '...' : (stats?.totalOrders || 0).toLocaleString('vi-VN')}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[#A1A1AA] font-semibold">
-            <Clock size={14} /> {stats?.pendingOrders || 18} đơn chờ xử lý
+            <Clock size={14} /> {stats?.pendingOrders || 0} đơn chờ xử lý
           </div>
         </div>
 
@@ -98,10 +90,10 @@ const AdminDashboardPage = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {stats?.activeFlashSales || 3} Phiên Đang Chạy
+            {stats?.activeFlashSales || 0} Phiên Đang Chạy
           </div>
           <div className="flex items-center gap-1.5 text-xs text-white font-semibold">
-            <CheckCircle2 size={14} /> Tỷ lệ bán cháy 88%
+            <CheckCircle2 size={14} /> Đợt Sale trực tuyến
           </div>
         </div>
 
@@ -114,10 +106,10 @@ const AdminDashboardPage = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {isLoading ? '...' : (stats?.activeUsers || 850).toLocaleString('vi-VN')}
+            {isLoading ? '...' : (stats?.activeUsers || 0).toLocaleString('vi-VN')}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[#A1A1AA] font-semibold">
-            <ArrowUpRight size={14} /> +45 đăng ký hôm nay
+            <ArrowUpRight size={14} /> Khách hàng đã đặt đơn
           </div>
         </div>
       </div>
@@ -139,16 +131,15 @@ const AdminDashboardPage = () => {
 
           <div className="h-56 flex items-end justify-between gap-3 pt-8 px-2 border-b border-[#27272A] pb-4">
             {(stats?.weeklyRevenue || []).map((item: any) => {
-              const maxRev = 450000000;
-              const heightPct = Math.round((item.revenue / maxRev) * 100);
+              const heightPct = Math.min(Math.round((item.revenue / maxWeeklyRev) * 100), 100);
               return (
                 <div key={item.day} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
                   <div className="text-[10px] font-mono text-[#A1A1AA] opacity-0 group-hover:opacity-100 transition-opacity">
-                    {(item.revenue / 1000000).toFixed(0)}M
+                    {item.revenue > 0 ? `${(item.revenue / 1000000).toFixed(1)}M` : '0'}
                   </div>
                   <div
                     className="w-full bg-[#27272A] group-hover:bg-white rounded-t-xl transition-all duration-300 relative"
-                    style={{ height: `${heightPct}%` }}
+                    style={{ height: `${Math.max(heightPct, 8)}%` }}
                   />
                   <span className="text-xs font-bold text-[#A1A1AA] group-hover:text-white transition-colors">{item.day}</span>
                 </div>
@@ -157,8 +148,8 @@ const AdminDashboardPage = () => {
           </div>
 
           <div className="flex justify-between items-center text-xs text-[#A1A1AA] pt-2">
-            <span>Trung bình mỗi ngày: <strong className="text-white font-mono">{formatVND(265000000)}</strong></span>
-            <span>Tổng cộng tuần: <strong className="text-white font-mono">{formatVND(1845000000)}</strong></span>
+            <span>Trung bình mỗi ngày: <strong className="text-white font-mono">{formatVND(Math.round((stats?.totalRevenue || 0) / 7))}</strong></span>
+            <span>Tổng cộng tuần: <strong className="text-white font-mono">{formatVND(stats?.totalRevenue || 0)}</strong></span>
           </div>
         </div>
 
@@ -167,7 +158,7 @@ const AdminDashboardPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
               <h2 className="text-base font-bold text-white flex items-center gap-2 uppercase tracking-tight">
-                <Zap size={18} className="fill-white" /> Giám Sát Flash Sale
+                <Zap size={18} className="fill-white" /> Giám Sát Sản Phẩm Bán Chạy
               </h2>
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
@@ -176,24 +167,32 @@ const AdminDashboardPage = () => {
             </div>
 
             <div className="space-y-4">
-              {liveFlashProducts.map((p, i) => (
-                <div key={i} className="bg-[#18181C] p-3.5 rounded-2xl border border-[#27272A] space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-white truncate max-w-[160px]">{p.name}</span>
-                    <span className="font-bold font-mono text-white">{formatVND(p.flashPrice)}</span>
-                  </div>
-                  <div className="progress-bar-track">
-                    <div
-                      className="progress-bar-fill bg-white"
-                      style={{ width: `${p.sold}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-[#A1A1AA]">
-                    <span>Đã bán {p.sold}%</span>
-                    <span>{p.soldOut ? 'Hết hàng 100%' : `Còn lại ${p.total - p.sold} sp`}</span>
-                  </div>
-                </div>
-              ))}
+              {liveFlashProducts.length > 0 ? (
+                liveFlashProducts.map((p: any, i: number) => {
+                  const price = Number(p.price) || 3490000;
+                  const convertedPrice = price < 10000 ? price * 25000 : price;
+                  return (
+                    <div key={i} className="bg-[#18181C] p-3.5 rounded-2xl border border-[#27272A] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-white truncate max-w-[160px]">{p.name || p.title}</span>
+                        <span className="font-bold font-mono text-white">{formatVND(convertedPrice)}</span>
+                      </div>
+                      <div className="progress-bar-track">
+                        <div
+                          className="progress-bar-fill bg-white"
+                          style={{ width: `85%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-[#A1A1AA]">
+                        <span>Đã bán 85%</span>
+                        <span>Còn lại {p.stockQuantity || p.stock || 15} sp</span>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-xs text-[#A1A1AA] text-center py-4">Đang tải danh sách sản phẩm...</div>
+              )}
             </div>
           </div>
 
@@ -210,7 +209,7 @@ const AdminDashboardPage = () => {
             <h2 className="text-lg font-bold text-white flex items-center gap-2 uppercase tracking-tight">
               <ShoppingBag size={20} /> Đơn Hàng Mới Vừa Đặt
             </h2>
-            <p className="text-xs text-[#A1A1AA]">Cập nhật thời gian thực</p>
+            <p className="text-xs text-[#A1A1AA]">Cập nhật thời gian thực từ Database</p>
           </div>
           <Link to="/admin/orders" className="text-xs text-white font-bold hover:underline flex items-center gap-1">
             Xem Tất Cả <ChevronRight size={14} />
@@ -229,21 +228,38 @@ const AdminDashboardPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#27272A] text-white">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-white">{order.id}</td>
-                  <td className="py-3.5 px-4 font-semibold">{order.customer}</td>
-                  <td className="py-3.5 px-4 font-mono font-bold">{formatVND(order.total)}</td>
-                  <td className="py-3.5 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                      order.status === 'Paid' ? 'bg-white text-black border-white' : 'bg-[#18181C] text-[#A1A1AA] border-[#27272A]'
-                    }`}>
-                      {order.status === 'Paid' ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
-                    </span>
+              {recentOrders.length > 0 ? (
+                recentOrders.map((order: any) => {
+                  const amt = Number(order.totalAmount || order.total) || 0;
+                  const convertedAmt = amt < 10000 ? amt * 25000 : amt;
+                  const isPaid = ['paid', 'completed', 'delivered'].includes(order.status?.toLowerCase());
+                  return (
+                    <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-white">
+                        {order.orderNumber || `FS-${(order.id || '').substring(0, 8).toUpperCase()}`}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold">{order.recipientName || 'Khách Hàng'}</td>
+                      <td className="py-3.5 px-4 font-mono font-bold">{formatVND(convertedAmt)}</td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                          isPaid ? 'bg-white text-black border-white' : 'bg-[#18181C] text-[#A1A1AA] border-[#27272A]'
+                        }`}>
+                          {isPaid ? 'Đã Thanh Toán' : 'Chờ Thanh Toán'}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-[#A1A1AA]">
+                        {order.createdAt ? new Date(order.createdAt).toLocaleTimeString('vi-VN') : 'Vừa xong'}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center text-[#A1A1AA]">
+                    Chưa có đơn hàng nào trong hệ thống.
                   </td>
-                  <td className="py-3.5 px-4 text-[#A1A1AA]">{order.date}</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

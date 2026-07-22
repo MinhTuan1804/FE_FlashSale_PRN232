@@ -1,24 +1,38 @@
 import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Search, Wallet, Plus, Lock, Unlock, X, Check } from 'lucide-react';
+import { adminGetAllUsers, adminToggleUserActive, adminTopUpWallet } from '../../api/admin.api';
 import toast from 'react-hot-toast';
 import { formatVND } from '../user/HomePage';
 
 const AdminUsersPage = () => {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [topUpAmount, setTopUpAmount] = useState('50000000');
 
-  const [usersList, setUsersList] = useState([
-    { id: 'USR-001', email: 'admin@flashshop.com', role: 'ADMIN', balance: 100000000, status: 'ACTIVE', joined: '01/01/2026' },
-    { id: 'USR-002', email: 'customer@gmail.com', role: 'CUSTOMER', balance: 50000000, status: 'ACTIVE', joined: '10/02/2026' },
-    { id: 'USR-003', email: 'gamer_pro@yahoo.com', role: 'CUSTOMER', balance: 25000000, status: 'ACTIVE', joined: '15/03/2026' },
-    { id: 'USR-004', email: 'buyer_vip@outlook.com', role: 'CUSTOMER', balance: 120000000, status: 'ACTIVE', joined: '20/03/2026' },
-    { id: 'USR-005', email: 'test_account@domain.com', role: 'CUSTOMER', balance: 10000000, status: 'LOCKED', joined: '05/04/2026' },
-  ]);
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      try {
+        const res: any = await adminGetAllUsers();
+        return res.data?.items || res.items || res.data || res || [];
+      } catch {
+        return [];
+      }
+    },
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
 
-  const filteredUsers = usersList.filter(u =>
-    !search || u.email.toLowerCase().includes(search.toLowerCase()) || u.id.toLowerCase().includes(search.toLowerCase())
+  const usersList = Array.isArray(usersData) ? usersData : [];
+
+  const filteredUsers = usersList.filter((u: any) =>
+    !search || 
+    (u.email || '').toLowerCase().includes(search.toLowerCase()) || 
+    (u.id || '').toLowerCase().includes(search.toLowerCase()) ||
+    (u.fullName || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleOpenTopUp = (u: any) => {
@@ -27,7 +41,7 @@ const AdminUsersPage = () => {
     setIsTopUpOpen(true);
   };
 
-  const handleTopUpSubmit = (e: React.FormEvent) => {
+  const handleTopUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = Number(topUpAmount) || 0;
     if (amountNum <= 0) {
@@ -35,15 +49,24 @@ const AdminUsersPage = () => {
       return;
     }
 
-    setUsersList(usersList.map(u => u.id === selectedUser.id ? { ...u, balance: u.balance + amountNum } : u));
-    toast.success(`Đã nạp +${formatVND(amountNum)} cho tài khoản ${selectedUser.email}!`);
-    setIsTopUpOpen(false);
+    try {
+      await adminTopUpWallet(selectedUser.id, amountNum);
+      toast.success(`Đã nạp +${formatVND(amountNum)} cho tài khoản ${selectedUser.email || selectedUser.fullName}!`);
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      setIsTopUpOpen(false);
+    } catch {
+      toast.error('Nạp tiền vào ví thất bại!');
+    }
   };
 
-  const handleToggleLock = (userId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'ACTIVE' ? 'LOCKED' : 'ACTIVE';
-    setUsersList(usersList.map(u => u.id === userId ? { ...u, status: newStatus } : u));
-    toast.success(`Đã ${newStatus === 'LOCKED' ? 'khóa' : 'mở khóa'} tài khoản thành công!`);
+  const handleToggleLock = async (userId: string) => {
+    try {
+      await adminToggleUserActive(userId);
+      toast.success('Đã cập nhật trạng thái tài khoản thành công!');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    } catch {
+      toast.error('Cập nhật trạng thái thất bại.');
+    }
   };
 
   return (
@@ -91,46 +114,70 @@ const AdminUsersPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#27272A]">
-              {filteredUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 px-5 font-mono font-bold text-white">{u.id}</td>
-                  <td className="py-3.5 px-4 font-semibold text-white">{u.email}</td>
-                  <td className="py-3.5 px-4">
-                    <span className={`px-2.5 py-0.5 rounded-full font-mono font-bold text-[10px] ${
-                      u.role === 'ADMIN' ? 'bg-white text-black border border-white' : 'bg-[#18181C] text-[#A1A1AA] border border-[#27272A]'
-                    }`}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-white">
-                    {formatVND(u.balance)}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span className={`px-2.5 py-1 rounded-full font-bold font-mono text-[10px] ${
-                      u.status === 'ACTIVE' ? 'bg-white/10 text-white border border-white/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                    }`}>
-                      {u.status === 'ACTIVE' ? 'HOẠT ĐỘNG' : 'ĐÃ KHÓA'}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleOpenTopUp(u)}
-                        className="btn-admin-primary text-[11px] py-1.5 px-3"
-                      >
-                        <Plus size={14} /> Nạp Ví
-                      </button>
-                      <button
-                        onClick={() => handleToggleLock(u.id, u.status)}
-                        className="p-2 rounded-lg bg-[#18181C] hover:bg-white hover:text-black text-[#A1A1AA] transition-colors border border-[#27272A]"
-                        title={u.status === 'ACTIVE' ? 'Khóa Tài Khoản' : 'Mở Khóa'}
-                      >
-                        {u.status === 'ACTIVE' ? <Lock size={14} /> : <Unlock size={14} className="text-white" />}
-                      </button>
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[#A1A1AA]">
+                    Đang tải danh sách người dùng từ hệ thống...
                   </td>
                 </tr>
-              ))}
+              ) : filteredUsers.length > 0 ? (
+                filteredUsers.map((u: any) => {
+                  const role = u.role || (u.roles && u.roles[0]) || 'Customer';
+                  const isActive = u.isActive ?? u.status === 'ACTIVE';
+                  const balance = u.walletBalance !== undefined ? Number(u.walletBalance) : (u.balance !== undefined ? Number(u.balance) : 0);
+                  return (
+                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3.5 px-5 font-mono font-bold text-white max-w-[120px] truncate">
+                        {(u.id || '').substring(0, 8).toUpperCase()}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-white">
+                        <div>{u.fullName || u.userName}</div>
+                        <div className="text-[10px] text-[#A1A1AA]">{u.email}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-0.5 rounded-full font-mono font-bold text-[10px] ${
+                          role.toUpperCase() === 'ADMIN' ? 'bg-white text-black border border-white' : 'bg-[#18181C] text-[#A1A1AA] border border-[#27272A]'
+                        }`}>
+                          {role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-white">
+                        {formatVND(balance)}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-1 rounded-full font-bold font-mono text-[10px] ${
+                          isActive ? 'bg-white/10 text-white border border-white/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                        }`}>
+                          {isActive ? 'HOẠT ĐỘNG' : 'ĐÃ KHÓA'}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleOpenTopUp(u)}
+                            className="btn-admin-primary text-[11px] py-1.5 px-3"
+                          >
+                            <Plus size={14} /> Nạp Ví
+                          </button>
+                          <button
+                            onClick={() => handleToggleLock(u.id)}
+                            className="p-2 rounded-lg bg-[#18181C] hover:bg-white hover:text-black text-[#A1A1AA] transition-colors border border-[#27272A]"
+                            title={isActive ? 'Khóa Tài Khoản' : 'Mở Khóa'}
+                          >
+                            {isActive ? <Lock size={14} /> : <Unlock size={14} className="text-white" />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[#A1A1AA]">
+                    Không tìm thấy người dùng nào.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -138,27 +185,29 @@ const AdminUsersPage = () => {
 
       {/* TOP UP MODAL */}
       {isTopUpOpen && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#121215] border border-[#27272A] rounded-3xl p-6 md:p-8 max-w-md w-full space-y-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#121215] border border-[#27272A] rounded-[2rem] p-6 md:p-8 max-w-lg w-full space-y-5 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-[#27272A]">
               <h2 className="text-lg font-bold text-white flex items-center gap-2 uppercase tracking-tight">
-                <Wallet size={20} />
+                <Wallet size={20} className="text-white" />
                 Nạp Số Dư Ví Cho Khách Hàng
               </h2>
-              <button onClick={() => setIsTopUpOpen(false)} className="text-[#A1A1AA] hover:text-white">
-                <X size={20} />
+              <button onClick={() => setIsTopUpOpen(false)} className="w-8 h-8 rounded-full bg-[#18181C] hover:bg-white hover:text-black text-[#A1A1AA] flex items-center justify-center transition-colors">
+                <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleTopUpSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block text-[#A1A1AA] font-semibold mb-1 uppercase tracking-wide">Email Nhận Tiền</label>
-                <input type="text" disabled value={selectedUser.email} className="input-dark bg-[#18181C] border-[#27272A] opacity-60 font-semibold" />
+                <input type="text" disabled value={selectedUser.email || selectedUser.fullName} className="input-dark bg-[#18181C] border-[#27272A] opacity-60 font-semibold" />
               </div>
 
               <div>
                 <label className="block text-[#A1A1AA] font-semibold mb-1 uppercase tracking-wide">Số Dư Hiện Tại</label>
-                <div className="text-base font-bold font-mono text-white">{formatVND(selectedUser.balance)}</div>
+                <div className="text-lg font-bold font-mono text-white bg-[#18181C] border border-[#27272A] px-4 py-2.5 rounded-xl">
+                  {formatVND(Number(selectedUser.walletBalance ?? selectedUser.balance ?? 0) || 0)}
+                </div>
               </div>
 
               <div>
@@ -168,7 +217,7 @@ const AdminUsersPage = () => {
                   required
                   value={topUpAmount}
                   onChange={(e) => setTopUpAmount(e.target.value)}
-                  className="input-dark bg-[#18181C] border-[#27272A] focus:border-white text-sm font-mono font-bold text-white"
+                  className="input-dark bg-[#18181C] border-[#27272A] focus:border-white text-base font-mono font-bold text-white"
                 />
               </div>
 
@@ -178,18 +227,18 @@ const AdminUsersPage = () => {
                     key={quickAmt}
                     type="button"
                     onClick={() => setTopUpAmount(quickAmt.toString())}
-                    className="btn-admin-secondary text-[10px] flex-1 py-2 px-1 font-mono"
+                    className="btn-admin-secondary text-[11px] flex-1 py-2.5 px-2 font-mono whitespace-nowrap"
                   >
                     +{formatVND(quickAmt)}
                   </button>
                 ))}
               </div>
 
-              <div className="flex gap-3 pt-3">
-                <button type="button" onClick={() => setIsTopUpOpen(false)} className="btn-admin-secondary flex-1 py-3">
+              <div className="flex items-center gap-3 pt-3">
+                <button type="button" onClick={() => setIsTopUpOpen(false)} className="btn-admin-secondary py-3 px-6 font-semibold text-xs rounded-xl whitespace-nowrap">
                   Hủy
                 </button>
-                <button type="submit" className="btn-admin-primary flex-1 py-3">
+                <button type="submit" className="btn-admin-primary flex-1 py-3 px-6 whitespace-nowrap font-bold text-xs rounded-xl flex items-center justify-center gap-2">
                   <Check size={16} /> Xác Nhận Nạp Tiền
                 </button>
               </div>

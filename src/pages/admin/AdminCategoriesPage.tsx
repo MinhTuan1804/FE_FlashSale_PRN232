@@ -38,25 +38,37 @@ const AdminCategoriesPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       toast.error('Vui lòng nhập tên danh mục!');
       return;
     }
-    if (editingCategory) {
-      toast.success(`Đã cập nhật danh mục "${name}"!`);
-    } else {
-      toast.success(`Đã tạo danh mục mới "${name}"!`);
+
+    try {
+      if (editingCategory) {
+        await adminUpdateCategory(editingCategory.id, { name: name.trim(), description: description.trim() });
+        toast.success(`Đã cập nhật danh mục "${name}"!`);
+      } else {
+        await adminCreateCategory({ name: name.trim(), description: description.trim() });
+        toast.success(`Đã tạo danh mục mới "${name}"!`);
+      }
+      setIsModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    } catch {
+      toast.error('Lưu danh mục thất bại.');
     }
-    setIsModalOpen(false);
-    queryClient.invalidateQueries({ queryKey: ['categories'] });
   };
 
-  const handleDelete = (catName: string) => {
+  const handleDelete = async (catId: number, catName: string) => {
     if (window.confirm(`Bạn có chắc muốn xóa danh mục "${catName}"?`)) {
-      toast.success(`Đã xóa danh mục "${catName}"!`);
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      try {
+        await adminDeleteCategory(catId);
+        toast.success(`Đã xóa danh mục "${catName}"!`);
+        queryClient.invalidateQueries({ queryKey: ['categories'] });
+      } catch {
+        toast.error('Xóa danh mục thất bại.');
+      }
     }
   };
 
@@ -103,7 +115,7 @@ const AdminCategoriesPage = () => {
                     <Edit2 size={14} />
                   </button>
                   <button
-                    onClick={() => handleDelete(cat.name)}
+                    onClick={() => handleDelete(cat.id, cat.name)}
                     className="p-2 rounded-lg bg-[#18181C] hover:bg-red-500/20 hover:text-red-400 text-[#71717A] transition-colors border border-[#27272A]"
                   >
                     <Trash2 size={14} />

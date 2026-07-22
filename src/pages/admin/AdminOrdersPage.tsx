@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ListOrdered, Search, MapPin, X, Eye, Truck } from 'lucide-react';
-import { getMyOrders } from '../../api/ordering.api';
+import { getAllOrders, updateOrderStatus } from '../../api/ordering.api';
 import toast from 'react-hot-toast';
 import { formatVND } from '../user/HomePage';
 
@@ -15,40 +15,67 @@ const AdminOrdersPage = () => {
     queryKey: ['admin-orders'],
     queryFn: async () => {
       try {
-        const res: any = await getMyOrders();
+        const res: any = await getAllOrders();
         return res.data || res || [];
       } catch {
         return [];
       }
-    }
+    },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
-  const orders = Array.isArray(ordersData) ? ordersData : (ordersData?.items || []);
+  const orders = Array.isArray(ordersData) 
+    ? ordersData 
+    : (ordersData?.items || ordersData?.data?.items || ordersData?.data || []);
 
-  const getStatusLabel = (status: string) => {
-    switch (status?.toLowerCase()) {
+  const getStatusLabel = (order: any) => {
+    const status = typeof order === 'string' ? order?.toLowerCase() : order?.status?.toLowerCase();
+    const payMethod = typeof order === 'object' ? order?.paymentMethod?.toLowerCase() || '' : '';
+    const isCod = payMethod.includes('cod') || payMethod.includes('nhận hàng');
+
+    if (isCod && status !== 'paid' && status !== 'completed' && status !== 'delivered' && status !== 'cancelled') {
+      return 'Chờ Thu Tiền (COD)';
+    }
+
+    switch (status) {
       case 'paid': return 'Đã Thanh Toán';
       case 'delivered':
-      case 'completed': return 'Đã Giao Hàng';
+      case 'completed': return 'Đã Hoàn Thành';
+      case 'shipping':
       case 'processing': return 'Đang Giao Hàng';
-      case 'pending':
-      case 'awaitingpayment': return 'Chờ Thanh Toán';
+      case 'pending': return isCod ? 'Chờ Thu Tiền (COD)' : 'Đang Xử Lý';
+      case 'awaitingpayment': return isCod ? 'Chờ Thu Tiền (COD)' : 'Chờ Thanh Toán';
       case 'cancelled': return 'Đã Hủy';
       default: return status || 'Chờ Duyệt';
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status?.toLowerCase()) {
+  const getStatusBadge = (order: any) => {
+    const status = typeof order === 'string' ? order?.toLowerCase() : order?.status?.toLowerCase();
+    const payMethod = typeof order === 'object' ? order?.paymentMethod?.toLowerCase() || '' : '';
+    const isCod = payMethod.includes('cod') || payMethod.includes('nhận hàng');
+
+    if (isCod && status !== 'paid' && status !== 'completed' && status !== 'delivered' && status !== 'cancelled') {
+      return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
+    }
+
+    switch (status) {
       case 'paid':
       case 'delivered':
       case 'completed':
-        return 'bg-white text-black border-white';
+        return 'bg-green-500/10 text-green-400 border-green-500/20';
+      case 'shipping':
       case 'processing':
-        return 'bg-[#18181C] text-white border-[#27272A]';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'pending':
+        return isCod 
+          ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' 
+          : 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       case 'awaitingpayment':
-        return 'bg-[#18181C] text-[#A1A1AA] border-[#27272A]';
+        return isCod 
+          ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+          : 'bg-[#FF1E27]/10 text-[#FF1E27] border-[#FF1E27]/20';
       case 'cancelled':
         return 'bg-red-500/10 text-red-400 border-red-500/20';
       default:
@@ -70,10 +97,15 @@ const AdminOrdersPage = () => {
     return matchesSearch;
   });
 
-  const handleUpdateStatus = (_orderId: string, newStatus: string) => {
-    toast.success(`Đã chuyển đơn hàng sang trạng thái "${getStatusLabel(newStatus)}"!`);
-    queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-    if (selectedOrder) setSelectedOrder(null);
+  const handleUpdateStatus = async (_orderId: string, newStatus: string) => {
+    try {
+      await updateOrderStatus(_orderId, newStatus);
+      toast.success(`Đã chuyển đơn hàng sang trạng thái "${getStatusLabel(newStatus)}"!`);
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      if (selectedOrder) setSelectedOrder(null);
+    } catch {
+      toast.error('Cập nhật trạng thái đơn hàng thất bại.');
+    }
   };
 
   const TABS = [
@@ -165,8 +197,8 @@ const AdminOrdersPage = () => {
                       {order.paymentMethod || 'Ví FlashPay'}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-1 rounded-full font-bold font-mono text-[10px] border ${getStatusBadge(order.status)}`}>
-                        {getStatusLabel(order.status)}
+                      <span className={`px-2.5 py-1 rounded-full font-bold font-mono text-[10px] border ${getStatusBadge(order)}`}>
+                        {getStatusLabel(order)}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">

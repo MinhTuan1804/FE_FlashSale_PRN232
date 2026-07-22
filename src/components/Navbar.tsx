@@ -50,6 +50,16 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Realtime push notification polling from Backend Server
+  const fetchServerNotifications = useNotificationStore((state) => state.fetchServerNotifications);
+  useEffect(() => {
+    fetchServerNotifications();
+    const interval = setInterval(() => {
+      fetchServerNotifications();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [fetchServerNotifications]);
+
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -215,7 +225,12 @@ const Navbar = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <h4 className="font-bold text-xs text-white truncate">{item.title}</h4>
+                                <h4 className="font-bold text-xs text-white truncate flex items-center gap-1.5">
+                                  <span>{item.title}</span>
+                                  {!item.isRead && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF1E27] animate-pulse flex-shrink-0" />
+                                  )}
+                                </h4>
                                 <span className="text-[9px] text-[#5A5E7A] font-mono flex-shrink-0">{item.timestamp}</span>
                               </div>
                               <p className="text-[11px] text-[#8E92B2] mt-1 leading-snug line-clamp-2">{item.message}</p>
@@ -223,16 +238,6 @@ const Navbar = () => {
                           </div>
                         ))
                       )}
-                    </div>
-
-                    <div className="pt-3 border-t border-[#1E1E2E] mt-3">
-                      <button
-                        onClick={handlePushTest}
-                        className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-[#FF1E27] to-[#E02424] hover:shadow-[0_5px_20px_rgba(255,30,39,0.5)] text-white text-xs font-extrabold flex items-center justify-center gap-2 transition-all active:scale-95"
-                      >
-                        <Send size={14} />
-                        <span>GỬI THÔNG BÁO TEST</span>
-                      </button>
                     </div>
                   </div>
                 )}
