@@ -23,24 +23,7 @@ interface NotificationState {
   pushTestNotification: () => void;
 }
 
-const initialNotifications: NotificationItem[] = [
-  {
-    id: 'n1',
-    title: 'Flash Sale Giờ Vàng',
-    message: 'Sự kiện Flash Sale cực đại vừa bắt đầu! Giảm giá tới 50% cho bộ sản phẩm Apex Pro.',
-    timestamp: '5 phút trước',
-    isRead: false,
-    type: 'flash_sale'
-  },
-  {
-    id: 'n2',
-    title: 'Mã Giảm Giá Độc Quyền',
-    message: 'Bạn nhận được Voucher GAMING100K giảm 100.000đ cho đơn hàng từ 1.500.000đ.',
-    timestamp: '1 giờ trước',
-    isRead: false,
-    type: 'voucher'
-  }
-];
+const initialNotifications: NotificationItem[] = [];
 
 // Global BroadcastChannel for instant cross-tab real-time push notifications
 const notifChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
@@ -79,6 +62,12 @@ export const useNotificationStore = create<NotificationState>()(
       },
       fetchServerNotifications: async () => {
         try {
+          const { useAuthStore } = await import('./useAuthStore');
+          const authState = useAuthStore.getState();
+          if (!authState.isAuthenticated || !authState.token) {
+            set({ notifications: [] });
+            return;
+          }
           // Dynamic import to prevent circular dependency
           const axiosClient = (await import('../api/axiosClient')).default;
           const res: any = await axiosClient.get('/notifications/my-notifications');

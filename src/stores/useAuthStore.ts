@@ -29,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('flashshop_user_shipping_profile');
+        localStorage.removeItem('flashshop-notifications-storage');
         set({ user: null, token: null, isAuthenticated: false });
         window.location.href = '/login';
       },
