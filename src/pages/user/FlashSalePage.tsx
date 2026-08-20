@@ -555,12 +555,12 @@ const FlashSalePage = () => {
               </div>
 
               {/* Price & Action Button */}
-              <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] flex items-center justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <span className="text-[11px] sm:text-xs text-[#8E92B2] line-through block font-medium truncate">
+              <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] flex flex-col min-[360px]:flex-row min-[360px]:items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="text-[11px] sm:text-xs text-[#8E92B2] line-through block font-medium whitespace-nowrap">
                     {formatVND(product.originalPrice)}
                   </span>
-                  <span className="text-lg sm:text-xl font-black text-[#FF1E27] tracking-tight truncate block">
+                  <span className="text-base sm:text-lg lg:text-xl font-black text-[#FF1E27] tracking-tight whitespace-nowrap block">
                     {formatVND(product.flashPrice)}
                   </span>
                 </div>
@@ -568,7 +568,7 @@ const FlashSalePage = () => {
                 <button
                   onClick={(e) => handleAddToCart(product, e)}
                   disabled={isSoldOut}
-                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-md min-h-[40px] whitespace-nowrap ${
+                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md min-h-[38px] whitespace-nowrap flex-shrink-0 ${
                     isSoldOut
                       ? 'bg-[#1F1F30] text-[#5A5E7A] cursor-not-allowed'
                       : 'bg-[#FF1E27] hover:bg-[#E02424] text-white active:scale-95 shadow-[0_5px_15px_rgba(255,30,39,0.4)]'
