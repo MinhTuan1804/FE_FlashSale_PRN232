@@ -140,8 +140,17 @@ const Navbar = () => {
             {/* Right Icons */}
             <div className="flex items-center gap-1">
 
+              {/* Mobile Quick Search Button */}
+              <button
+                onClick={() => navigate('/products')}
+                className="md:hidden text-[#8E92B2] hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5"
+                title="Tìm kiếm"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+
               {/* Profile */}
-              <Link to="/profile" className="text-[#8E92B2] hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5" title="Tài khoản">
+              <Link to="/profile" className="hidden sm:flex text-[#8E92B2] hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5" title="Tài khoản">
                 <User className="h-5 w-5" />
               </Link>
 
@@ -162,7 +171,7 @@ const Navbar = () => {
 
                 {/* Notification Dropdown */}
                 {isNotifOpen && (
-                  <div className="absolute right-0 mt-3 w-80 md:w-96 bg-[#0D0D16] border border-[#FF1E27]/40 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] p-4 z-50 animate-slide-up">
+                  <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-full mt-2 w-[calc(100vw-24px)] sm:w-88 md:w-96 bg-[#0D0D16] border border-[#FF1E27]/40 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.95)] p-4 z-50 animate-slide-up max-w-sm">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-[#1E1E2E] pb-3 mb-3">
                       <div className="flex items-center gap-2">
@@ -170,7 +179,7 @@ const Navbar = () => {
                         <h3 className="font-extrabold text-sm text-white">Thông Báo FlashShop</h3>
                         {unreadCount > 0 && (
                           <span className="bg-[#FF1E27]/20 border border-[#FF1E27]/40 text-[#FF1E27] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            {unreadCount} chưa đọc
+                            {unreadCount}
                           </span>
                         )}
                       </div>
@@ -194,8 +203,8 @@ const Navbar = () => {
                             onClick={() => markAsRead(item.id)}
                             className={`p-3 rounded-2xl border transition-all cursor-pointer flex gap-3 ${
                               item.isRead
-                                ? 'bg-[#08080E]/60 border-[#1A1A2A] opacity-70'
-                                : 'bg-[#121220] border-[#FF1E27]/30 shadow-md'
+                                ? 'bg-white/5 border-transparent text-[#8E92B2]'
+                                : 'bg-[#FF1E27]/10 border-[#FF1E27]/30 text-white'
                             }`}
                           >
                             <div className="p-2 rounded-xl bg-[#1A1A2A] h-fit flex-shrink-0">
@@ -235,6 +244,7 @@ const Navbar = () => {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden text-[#8E92B2] hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 ml-1"
+                aria-label="Mở menu"
               >
                 {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>

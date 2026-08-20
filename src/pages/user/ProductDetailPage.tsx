@@ -310,32 +310,32 @@ const ProductDetailPage = () => {
             {/* Interactive Color Selection */}
             <div className="space-y-2 pt-2">
               <label className="text-xs font-bold text-[#8E92B2] uppercase tracking-wider block">Màu sắc sản phẩm:</label>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <button 
                   onClick={() => setSelectedColor('trang')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-xs font-bold transition-all min-h-[44px] ${
                     selectedColor === 'trang' ? 'border-[#FF1E27] bg-[#FF1E27]/10 text-white' : 'border-[#232338] bg-[#0D0D16] text-[#8E92B2]'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-slate-100 border border-slate-300" />
+                  <span className="w-4 h-4 rounded-full bg-slate-100 border border-slate-300 flex-shrink-0" />
                   <span>Trắng Titanium</span>
                 </button>
                 <button 
                   onClick={() => setSelectedColor('den')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-xs font-bold transition-all min-h-[44px] ${
                     selectedColor === 'den' ? 'border-[#FF1E27] bg-[#FF1E27]/10 text-white' : 'border-[#232338] bg-[#0D0D16] text-[#8E92B2]'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-slate-800 border border-slate-600" />
+                  <span className="w-4 h-4 rounded-full bg-slate-800 border border-slate-600 flex-shrink-0" />
                   <span>Titanium Đen</span>
                 </button>
                 <button 
                   onClick={() => setSelectedColor('cam')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-xs font-bold transition-all min-h-[44px] ${
                     selectedColor === 'cam' ? 'border-[#FF1E27] bg-[#FF1E27]/10 text-white' : 'border-[#232338] bg-[#0D0D16] text-[#8E92B2]'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-amber-600 border border-amber-500" />
+                  <span className="w-4 h-4 rounded-full bg-amber-600 border border-amber-500 flex-shrink-0" />
                   <span>Cam Titan</span>
                 </button>
               </div>
@@ -345,14 +345,14 @@ const ProductDetailPage = () => {
             {isPhone && (
               <div className="space-y-2 pt-2">
                 <label className="text-xs font-bold text-[#8E92B2] uppercase tracking-wider block">Dung lượng lưu trữ:</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {['256 GB', '512 GB', '1 TB'].map((size) => {
                     const isSelected = selectedStorage === size;
                     return (
                       <button
                         key={size}
                         onClick={() => setSelectedStorage(size)}
-                        className={`relative py-3 px-2 rounded-xl text-xs font-extrabold transition-all border flex items-center justify-center ${
+                        className={`relative py-3 px-2 rounded-xl text-xs font-extrabold transition-all border flex items-center justify-center min-h-[44px] ${
                           isSelected 
                             ? 'border-[#FF1E27] text-white bg-[#FF1E27]/20 shadow-md' 
                             : 'border-[#232338] text-[#8E92B2] bg-[#0D0D16] hover:bg-white/5'
@@ -377,54 +377,56 @@ const ProductDetailPage = () => {
           <div className="space-y-4 pt-4 border-t border-[#1E1E2E]">
             <div className="flex items-center gap-4">
               <span className="text-xs font-bold text-[#8E92B2] uppercase tracking-wider">Số lượng:</span>
-              <div className="flex items-center border border-[#232338] bg-[#0D0D16] rounded-xl overflow-hidden">
+              <div className="flex items-center border border-[#232338] bg-[#0D0D16] rounded-xl overflow-hidden min-h-[44px]">
                 <button 
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="p-2.5 hover:bg-white/10 text-white transition-colors"
+                  className="px-3.5 py-2.5 hover:bg-white/10 text-white transition-colors"
+                  aria-label="Giảm số lượng"
                 >
                   <Minus size={16} />
                 </button>
                 <span className="px-5 font-extrabold text-sm text-white">{quantity}</span>
                 <button 
                   onClick={() => setQuantity((q) => q + 1)}
-                  className="p-2.5 hover:bg-white/10 text-white transition-colors"
+                  className="px-3.5 py-2.5 hover:bg-white/10 text-white transition-colors"
+                  aria-label="Tăng số lượng"
                 >
                   <Plus size={16} />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <button
                 onClick={handleAddToCart}
                 disabled={product.isSoldOut}
-                className="w-full py-4 rounded-2xl border border-[#FF1E27] bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-white font-extrabold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 shadow-md"
+                className="w-full py-3.5 sm:py-4 rounded-2xl border border-[#FF1E27] bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 shadow-md min-h-[48px]"
               >
                 <ShoppingBag size={18} />
-                <span>Thêm Vào Giỏ</span>
+                <span className="whitespace-nowrap">Thêm Vào Giỏ</span>
               </button>
 
               <button
                 onClick={handleBuyNow}
                 disabled={product.isSoldOut}
-                className="w-full py-4 rounded-2xl bg-[#FF1E27] hover:bg-[#E02424] text-white font-extrabold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_10px_35px_rgba(255,30,39,0.45)] active:scale-95 disabled:opacity-50"
+                className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#FF1E27] hover:bg-[#E02424] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_10px_35px_rgba(255,30,39,0.45)] active:scale-95 disabled:opacity-50 min-h-[48px]"
               >
-                <span>Mua Ngay</span>
+                <span className="whitespace-nowrap">Mua Ngay</span>
               </button>
             </div>
 
             {/* Value Guarantees */}
-            <div className="grid grid-cols-3 gap-2 pt-2 text-[11px] text-[#8E92B2] font-semibold">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-[11px] text-[#8E92B2] font-semibold">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-[#FF1E27]" />
+                <ShieldCheck size={14} className="text-[#FF1E27] flex-shrink-0" />
                 <span>100% Chính hãng</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Truck size={14} className="text-[#FF1E27]" />
+                <Truck size={14} className="text-[#FF1E27] flex-shrink-0" />
                 <span>Freeship toàn quốc</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <RotateCcw size={14} className="text-[#FF1E27]" />
+                <RotateCcw size={14} className="text-[#FF1E27] flex-shrink-0" />
                 <span>1 Đổi 1 trong 30 ngày</span>
               </div>
             </div>
@@ -432,6 +434,33 @@ const ProductDetailPage = () => {
 
         </div>
 
+      </div>
+
+      {/* Sticky Bottom Action Bar for Mobile Viewports (< 768px) */}
+      <div className="md:hidden fixed bottom-[58px] left-0 right-0 z-30 p-3 bg-[#0D0D16]/95 backdrop-blur-xl border-t border-[#232338] flex items-center justify-between gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.8)]">
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] text-[#8E92B2] uppercase font-bold tracking-wider">Giá Flash Sale</div>
+          <div className="text-lg font-black text-[#FF1E27] tracking-tight truncate">{formatVND(product.price)}</div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={product.isSoldOut}
+            className="p-3 rounded-xl border border-[#FF1E27] bg-[#FF1E27]/10 text-white font-bold text-xs flex items-center justify-center active:scale-95 disabled:opacity-50 min-w-[44px] min-h-[44px]"
+            title="Thêm vào giỏ"
+          >
+            <ShoppingBag size={18} />
+          </button>
+
+          <button
+            onClick={handleBuyNow}
+            disabled={product.isSoldOut}
+            className="px-5 py-2.5 rounded-xl bg-[#FF1E27] text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 disabled:opacity-50 min-h-[44px] whitespace-nowrap"
+          >
+            MUA NGAY
+          </button>
+        </div>
       </div>
     </div>
   );

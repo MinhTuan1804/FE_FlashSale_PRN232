@@ -158,43 +158,43 @@ const HotDealsPage = () => {
   const dealsToDisplay = apiHotDeals.length > 0 ? apiHotDeals : defaultHotDeals;
 
   return (
-    <div className="space-y-12 pb-16 bg-transparent text-white">
+    <div className="space-y-8 md:space-y-12 pb-16 bg-transparent text-white">
       {/* 1. HOT DEALS HERO BANNER */}
-      <section className="relative rounded-3xl overflow-hidden border border-amber-500/40 p-8 md:p-12 bg-gradient-to-r from-[#171206] via-[#1F180A] to-[#07070C] shadow-[0_0_60px_rgba(255,184,0,0.2)]">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-amber-500/15 rounded-full blur-[140px] pointer-events-none" />
+      <section className="relative rounded-3xl overflow-hidden border border-amber-500/40 p-5 sm:p-8 md:p-12 bg-gradient-to-r from-[#171206] via-[#1F180A] to-[#07070C] shadow-[0_0_60px_rgba(255,184,0,0.2)]">
+        <div className="absolute right-0 top-0 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
 
-        <div className="relative z-10 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-400 text-xs font-extrabold tracking-widest uppercase">
-            <Flame className="w-4 h-4 fill-amber-400" />
+        <div className="relative z-10 space-y-3 sm:space-y-4 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-400 text-[11px] sm:text-xs font-extrabold tracking-widest uppercase">
+            <Flame className="w-3.5 h-3.5 fill-amber-400" />
             <span>DANH MỤC ƯU ĐÃI HOT NHẤT 2026</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white uppercase leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-white uppercase leading-tight">
             TOP SẢN PHẨM GAMING<br />
             <span className="text-amber-400">SIÊU GIẢM GIÁ</span> TRONG TUẦN
           </h1>
 
-          <p className="text-xs md:text-sm text-[#8E92B2]">
+          <p className="text-xs sm:text-sm text-[#8E92B2]">
             Tổng hợp các thiết bị gaming gear bán chạy nhất với mức giảm giá hấp dẫn, bảo hành chính hãng 100% 1-đổi-1.
           </p>
         </div>
       </section>
 
       {/* 2. FILTER & SORT BAR */}
-      <section className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0D0D16] border border-[#232338] rounded-2xl p-4">
+      <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-[#0D0D16] border border-[#232338] rounded-2xl p-3.5 sm:p-4">
         <div className="flex items-center gap-2 text-xs font-bold text-[#8E92B2]">
           <Filter size={16} className="text-amber-400" />
           <span>Hiển thị <span className="text-white font-extrabold">{dealsToDisplay.length}</span> ưu đãi hot</span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between sm:justify-end gap-3">
           <span className="text-xs text-[#8E92B2] font-semibold flex items-center gap-1">
             <ArrowUpDown size={14} /> Sắp xếp:
           </span>
           <select
             value={sortBy}
             onChange={(e: any) => setSortBy(e.target.value)}
-            className="bg-[#121220] border border-[#232338] text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-400"
+            className="bg-[#121220] border border-[#232338] text-white text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-400 min-h-[38px]"
           >
             <option value="discount">Giảm giá nhiều nhất</option>
             <option value="rating">Đánh giá cao nhất</option>
@@ -205,16 +205,16 @@ const HotDealsPage = () => {
       </section>
 
       {/* 3. HOT DEALS PRODUCT GRID */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {dealsToDisplay.map((product) => (
           <Link
             key={product.id}
             to={`/products/${product.id}`}
             state={{ product: { id: product.id, name: product.name, price: product.price, originalPrice: product.originalPrice, imageUrl: product.imageUrl, description: (product as any).description } }}
-            className="bg-[#0D0D16] red-card-border rounded-3xl p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
+            className="bg-[#0D0D16] red-card-border rounded-3xl p-4 sm:p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
           >
             {/* Hot Badge */}
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-[#FF1E27] text-white font-black text-xs px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-[#FF1E27] text-white font-black text-xs px-2.5 sm:px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 fill-white" />
               <span>-{product.discountPercent}% GIẢM</span>
             </div>
@@ -224,10 +224,11 @@ const HotDealsPage = () => {
             </div>
 
             <div>
-              <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
+              <div className="relative mb-4 sm:mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
+                  loading="lazy"
                   onError={(e) => {
                     const t = e.target as HTMLImageElement;
                     t.onerror = null;
@@ -243,28 +244,28 @@ const HotDealsPage = () => {
                 <span className="text-[#8E92B2] text-[11px]">({product.reviews} đánh giá)</span>
               </div>
 
-              <h3 className="font-bold text-white text-base line-clamp-2 h-12 mb-3 group-hover:text-amber-400 transition-colors">
+              <h3 className="font-bold text-white text-sm sm:text-base line-clamp-2 h-10 sm:h-12 mb-3 group-hover:text-amber-400 transition-colors">
                 {product.name}
               </h3>
             </div>
 
             {/* Price & Action Button */}
-            <div className="pt-4 border-t border-[#1E1E2E] flex items-center justify-between mt-3">
-              <div>
-                <span className="text-xs text-[#8E92B2] line-through block font-medium">
+            <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] flex items-center justify-between gap-2 mt-3">
+              <div className="min-w-0 flex-1">
+                <span className="text-[11px] sm:text-xs text-[#8E92B2] line-through block font-medium truncate">
                   {formatVND(product.originalPrice)}
                 </span>
-                <span className="text-2xl font-black text-amber-400 tracking-tight">
+                <span className="text-lg sm:text-xl font-black text-amber-400 tracking-tight block truncate">
                   {formatVND(product.price)}
                 </span>
               </div>
 
               <button
                 onClick={(e) => handleAddToCart(product, e)}
-                className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-[#FF1E27] hover:opacity-90 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-[0_5px_15px_rgba(255,184,0,0.3)] active:scale-95"
+                className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-[#FF1E27] hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-[0_5px_15px_rgba(255,184,0,0.3)] active:scale-95 min-h-[40px] whitespace-nowrap"
               >
                 <ShoppingBag size={14} />
-                <span>THÊM GIỎ HÀNG</span>
+                <span>THÊM GIỎ</span>
               </button>
             </div>
           </Link>
@@ -272,24 +273,24 @@ const HotDealsPage = () => {
       </section>
 
       {/* 4. FLASH VOUCHERS BANNER */}
-      <section className="bg-gradient-to-r from-[#121220] via-[#1A1A2E] to-[#121220] border border-amber-500/30 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+      <section className="bg-gradient-to-r from-[#121220] via-[#1A1A2E] to-[#121220] border border-amber-500/30 rounded-3xl p-5 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl relative overflow-hidden">
         <div className="space-y-2 max-w-md">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400">
             <Tag size={14} />
             <span>MÃ GIẢM GIÁ ĐỘC QUYỀN</span>
           </div>
-          <h3 className="text-xl font-extrabold text-white">Sưu Tầm Voucher Cho Đơn Hàng Hot</h3>
+          <h3 className="text-lg sm:text-xl font-extrabold text-white">Sưu Tầm Voucher Cho Đơn Hàng Hot</h3>
           <p className="text-xs text-[#8E92B2]">Áp dụng mã giảm giá trực tiếp vào giỏ hàng khi thanh toán để nhận ngay ưu đãi khủng!</p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 sm:gap-3 w-full md:w-auto">
           {['HOT100K', 'GAMING200K', 'FREESHIPVIP'].map((code) => (
-            <div key={code} className="bg-[#07070C] border border-[#232338] hover:border-amber-500/50 rounded-2xl p-3.5 flex flex-col justify-between min-w-[140px]">
-              <span className="text-xs font-extrabold text-amber-400">{code}</span>
+            <div key={code} className="bg-[#07070C] border border-[#232338] hover:border-amber-500/50 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between min-w-0 sm:min-w-[140px]">
+              <span className="text-xs font-extrabold text-amber-400 truncate">{code}</span>
               <span className="text-[10px] text-[#8E92B2] mt-0.5">Giảm cực sâu</span>
               <button
                 onClick={() => copyVoucher(code)}
-                className="mt-2 text-[10px] font-bold py-1 px-3 rounded-lg bg-[#181826] hover:bg-amber-500 text-white transition-colors flex items-center justify-center gap-1"
+                className="mt-2 text-[10px] font-bold py-1.5 px-2.5 rounded-lg bg-[#181826] hover:bg-amber-500 text-white transition-colors flex items-center justify-center gap-1 min-h-[32px]"
               >
                 {copiedCode === code ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                 <span>{copiedCode === code ? 'ĐÃ COPY' : 'COPY MÃ'}</span>

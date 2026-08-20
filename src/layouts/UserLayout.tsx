@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import MobileBottomNav from '../components/MobileBottomNav';
 import { Zap, Globe, ShieldCheck, Truck, RotateCcw, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -23,11 +24,15 @@ const GlobalMouseParticlesCanvas = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Reduce particle count on mobile for battery & 60fps performance
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 25 : 65;
+
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const mouse = { x: -1000, y: -1000, radius: 160 };
+    const mouse = { x: -1000, y: -1000, radius: 140 };
 
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
@@ -49,8 +54,6 @@ const GlobalMouseParticlesCanvas = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Create 75 particles across full viewport
-    const particleCount = 75;
     const particles: Array<{
       x: number;
       y: number;
@@ -67,18 +70,17 @@ const GlobalMouseParticlesCanvas = () => {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
         radius: Math.random() * 2 + 1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: Math.random() * 0.5 + 0.3
+        alpha: Math.random() * 0.5 + 0.2
       });
     }
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Render & update particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
@@ -88,54 +90,15 @@ const GlobalMouseParticlesCanvas = () => {
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        // Particle dot with glow
         ctx.save();
         ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 6;
         ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-
-        // Mouse attraction constellation lines
-        if (dist < mouse.radius) {
-          const lineAlpha = (1 - dist / mouse.radius) * 0.55;
-          ctx.save();
-          ctx.strokeStyle = '#FF1E27';
-          ctx.globalAlpha = lineAlpha;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        // Particle to particle connections
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const pdx = p.x - p2.x;
-          const pdy = p.y - p2.y;
-          const pDist = Math.sqrt(pdx * pdx + pdy * pdy);
-
-          if (pDist < 90) {
-            ctx.save();
-            ctx.strokeStyle = p.color;
-            ctx.globalAlpha = (1 - pDist / 90) * 0.15;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-            ctx.restore();
-          }
-        }
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -158,7 +121,7 @@ const UserLayout = () => {
   const tickerText = TICKER_ITEMS.join('   •   ') + '   •   ' + TICKER_ITEMS.join('   •   ');
 
   return (
-    <div className="min-h-screen flex flex-col text-text-primary relative bg-transparent">
+    <div className="min-h-[100dvh] flex flex-col text-text-primary relative bg-transparent overflow-x-hidden">
       {/* Global Interactive Mouse Particle Background */}
       <GlobalMouseParticlesCanvas />
 
@@ -173,15 +136,18 @@ const UserLayout = () => {
 
       <Navbar />
 
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 pb-24 md:pb-12 relative z-10">
         <Outlet />
       </main>
 
+      {/* Mobile Bottom Navigation Bar (Visible on mobile only < 768px) */}
+      <MobileBottomNav />
+
       {/* ─── Footer ─── */}
-      <footer className="border-t border-[#1A1A2A] mt-8 bg-transparent relative z-10">
+      <footer className="border-t border-[#1A1A2A] mt-8 bg-[#07050A]/80 backdrop-blur-md relative z-10 pb-16 md:pb-0">
 
         {/* Trust bar */}
-        <div className="border-b border-[#1A1A2A] py-5">
+        <div className="border-b border-[#1A1A2A] py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="flex flex-col items-center gap-2 text-[#8E92B2]">

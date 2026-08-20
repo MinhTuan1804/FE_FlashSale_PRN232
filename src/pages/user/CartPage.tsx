@@ -106,55 +106,59 @@ const CartPage = () => {
             return (
               <div
                 key={item.productId}
-                className={`bg-[#0D0D16] border border-[#1A1A2A] hover:border-[#FF1E27]/40 p-4 md:p-5 rounded-2xl flex items-center gap-4 transition-all duration-300 ${isRemoving ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+                className={`bg-[#0D0D16] border border-[#1A1A2A] hover:border-[#FF1E27]/40 p-3.5 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-300 ${isRemoving ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
               >
-                {/* Product Image */}
-                <Link to={`/products/${item.productId}`} className="flex-shrink-0">
-                  <img
-                    src={item.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600'}
-                    alt={item.productName}
-                    onError={(e) => {
-                      const t = e.target as HTMLImageElement;
-                      t.onerror = null;
-                      t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
-                    }}
-                    className="w-18 h-18 md:w-20 md:h-20 rounded-xl object-contain bg-[#08080E] p-2 border border-[#1E1E2E] hover:scale-105 transition-transform"
-                    style={{ width: 72, height: 72 }}
-                  />
-                </Link>
-
-                {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <Link to={`/products/${item.productId}`}>
-                    <h3 className="font-bold text-white text-sm line-clamp-2 hover:text-[#FF1E27] transition-colors leading-snug">{item.productName}</h3>
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  {/* Product Image */}
+                  <Link to={`/products/${item.productId}`} className="flex-shrink-0">
+                    <img
+                      src={item.imageUrl || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600'}
+                      alt={item.productName}
+                      onError={(e) => {
+                        const t = e.target as HTMLImageElement;
+                        t.onerror = null;
+                        t.src = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&q=80&w=600';
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain bg-[#08080E] p-1.5 border border-[#1E1E2E] hover:scale-105 transition-transform"
+                    />
                   </Link>
-                  <div className="text-sm font-bold text-[#FF1E27] mt-1">{formatVND(convertedItemPrice)}</div>
-                  <div className="text-xs text-[#5A5E7A] mt-0.5">
-                    Thành tiền: <span className="text-white font-semibold">{formatVND(convertedItemPrice * item.quantity)}</span>
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <Link to={`/products/${item.productId}`}>
+                      <h3 className="font-bold text-white text-xs sm:text-sm line-clamp-2 hover:text-[#FF1E27] transition-colors leading-snug">{item.productName}</h3>
+                    </Link>
+                    <div className="text-sm font-bold text-[#FF1E27] mt-1">{formatVND(convertedItemPrice)}</div>
+                    <div className="text-[11px] sm:text-xs text-[#5A5E7A] mt-0.5">
+                      Thành tiền: <span className="text-white font-semibold">{formatVND(convertedItemPrice * item.quantity)}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Quantity + Remove */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="flex items-center border border-[#232338] rounded-xl bg-[#121220] overflow-hidden">
+                {/* Quantity + Remove (Full width on mobile) */}
+                <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#1E1E2E] flex-shrink-0">
+                  <div className="flex items-center border border-[#232338] rounded-xl bg-[#121220] overflow-hidden min-h-[38px]">
                     <button
                       onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
-                      className="p-2 text-[#8E92B2] hover:text-white hover:bg-[#1A1A2E] transition-colors"
+                      className="px-3 py-2 text-[#8E92B2] hover:text-white hover:bg-[#1A1A2E] transition-colors"
+                      aria-label="Giảm số lượng"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="px-3 font-bold text-white text-sm min-w-[2rem] text-center">{item.quantity}</span>
+                    <span className="px-3 font-bold text-white text-xs sm:text-sm min-w-[2rem] text-center">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      className="p-2 text-[#8E92B2] hover:text-white hover:bg-[#1A1A2E] transition-colors"
+                      className="px-3 py-2 text-[#8E92B2] hover:text-white hover:bg-[#1A1A2E] transition-colors"
+                      aria-label="Tăng số lượng"
                     >
                       <Plus size={14} />
                     </button>
                   </div>
                   <button
                     onClick={() => handleRemoveWithAnimation(item.productId)}
-                    className="text-[#5A5E7A] hover:text-red-400 p-2 transition-colors rounded-lg hover:bg-red-500/10"
+                    className="text-[#5A5E7A] hover:text-red-400 p-2.5 transition-colors rounded-xl hover:bg-red-500/10 min-w-[38px] min-h-[38px] flex items-center justify-center"
                     title="Xóa sản phẩm"
+                    aria-label="Xóa sản phẩm"
                   >
                     <Trash2 size={16} />
                   </button>

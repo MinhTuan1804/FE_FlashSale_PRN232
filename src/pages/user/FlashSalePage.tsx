@@ -373,69 +373,69 @@ const FlashSalePage = () => {
   const flashProductsToDisplay = getProductsForActiveTab();
 
   return (
-    <div className="space-y-12 pb-16 bg-transparent text-white">
+    <div className="space-y-8 md:space-y-12 pb-16 bg-transparent text-white">
       {/* 1. FLASH SALE HEADER HERO BANNER */}
-      <section className="relative rounded-3xl overflow-hidden border border-[#FF1E27]/40 p-8 md:p-12 bg-gradient-to-r from-[#12070A] via-[#1A0A10] to-[#07070C] shadow-[0_0_60px_rgba(255,30,39,0.25)]">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-[#FF1E27]/15 rounded-full blur-[140px] pointer-events-none" />
+      <section className="relative rounded-3xl overflow-hidden border border-[#FF1E27]/40 p-5 sm:p-8 md:p-12 bg-gradient-to-r from-[#12070A] via-[#1A0A10] to-[#07070C] shadow-[0_0_60px_rgba(255,30,39,0.25)]">
+        <div className="absolute right-0 top-0 w-72 sm:w-96 h-72 sm:h-96 bg-[#FF1E27]/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="space-y-4 max-w-xl text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF1E27]/20 border border-[#FF1E27]/50 text-[#FF1E27] text-xs font-extrabold tracking-widest uppercase">
-              <Zap className="w-4 h-4 fill-[#FF1E27]" />
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-8">
+          <div className="space-y-3 sm:space-y-4 max-w-xl text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-[#FF1E27]/20 border border-[#FF1E27]/50 text-[#FF1E27] text-[11px] sm:text-xs font-extrabold tracking-widest uppercase">
+              <Zap className="w-3.5 h-3.5 fill-[#FF1E27]" />
               <span>SỰ KIỆN FLASH SALE GIỜ VÀNG</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white uppercase leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-white uppercase leading-tight">
               GIẢM SỐC TỚI <span className="text-[#FF1E27]">50%</span><br />
               THIẾT BỊ GAMING HIGH-END
             </h1>
 
-            <p className="text-xs md:text-sm text-[#8E92B2]">
+            <p className="text-xs sm:text-sm text-[#8E92B2] max-w-md mx-auto lg:mx-0">
               Sản phẩm Flash Sale có số lượng giới hạn theo từng khung giờ. Đặt hàng ngay trước khi kết thúc đợt sale!
             </p>
           </div>
 
           {/* Real-time High Tension Countdown Box */}
-          <div className="bg-[#0D0D16] border border-[#FF1E27]/50 rounded-3xl p-6 shadow-[0_10px_40px_rgba(255,30,39,0.3)] flex flex-col items-center gap-3 min-w-[280px]">
-            <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+          <div className="w-full sm:w-auto bg-[#0D0D16] border border-[#FF1E27]/50 rounded-3xl p-4 sm:p-6 shadow-[0_10px_40px_rgba(255,30,39,0.3)] flex flex-col items-center gap-2.5 sm:gap-3 min-w-[260px] sm:min-w-[280px]">
+            <div className="flex items-center gap-2 text-amber-400 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider">
               <Clock className="w-4 h-4" />
               <span>KẾT THÚC SAU</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex flex-col items-center">
-                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-4 py-3 min-w-[68px] text-center shadow-inner">
-                  <span className="font-mono text-3xl font-black text-white tracking-widest">{formatDigit(timeLeft.hours)}</span>
+                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[54px] sm:min-w-[68px] text-center shadow-inner">
+                  <span className="font-mono tabular-nums text-2xl sm:text-3xl font-black text-white tracking-wider">{formatDigit(timeLeft.hours)}</span>
                 </div>
-                <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giờ</span>
+                <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giờ</span>
               </div>
-              <span className="font-mono text-2xl font-bold text-[#FF1E27] mb-4">:</span>
+              <span className="font-mono text-xl sm:text-2xl font-bold text-[#FF1E27] mb-3 sm:mb-4">:</span>
               <div className="flex flex-col items-center">
-                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-4 py-3 min-w-[68px] text-center shadow-inner">
-                  <span className="font-mono text-3xl font-black text-white tracking-widest">{formatDigit(timeLeft.minutes)}</span>
+                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[54px] sm:min-w-[68px] text-center shadow-inner">
+                  <span className="font-mono tabular-nums text-2xl sm:text-3xl font-black text-white tracking-wider">{formatDigit(timeLeft.minutes)}</span>
                 </div>
-                <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Phút</span>
+                <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Phút</span>
               </div>
-              <span className="font-mono text-2xl font-bold text-[#FF1E27] mb-4">:</span>
+              <span className="font-mono text-xl sm:text-2xl font-bold text-[#FF1E27] mb-3 sm:mb-4">:</span>
               <div className="flex flex-col items-center">
-                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-4 py-3 min-w-[68px] text-center shadow-inner">
-                  <span className="font-mono text-3xl font-black text-white tracking-widest">{formatDigit(timeLeft.seconds)}</span>
+                <div className="bg-[#07070C] border border-[#FF1E27]/40 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[54px] sm:min-w-[68px] text-center shadow-inner">
+                  <span className="font-mono tabular-nums text-2xl sm:text-3xl font-black text-white tracking-wider">{formatDigit(timeLeft.seconds)}</span>
                 </div>
-                <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giây</span>
+                <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giây</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. TIME SLOT SELECTOR TABS */}
-      <section className="flex flex-wrap items-center justify-center gap-4 border-b border-[#1A1A2A] pb-6">
+      {/* 2. TIME SLOT SELECTOR TABS (Scroll-snap on mobile) */}
+      <section className="flex items-center gap-2.5 sm:gap-4 border-b border-[#1A1A2A] pb-4 sm:pb-6 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 md:justify-center">
         {/* ACTIVE session tab */}
         <button
           onClick={() => setActiveTab('active')}
-          className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-sm transition-all duration-300 ${
+          className={`flex-shrink-0 snap-center flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-extrabold text-xs sm:text-sm transition-all duration-300 min-h-[44px] ${
             activeTab === 'active'
-              ? 'bg-[#FF1E27] text-white shadow-[0_10px_25px_rgba(255,30,39,0.4)] scale-105'
+              ? 'bg-[#FF1E27] text-white shadow-[0_8px_20px_rgba(255,30,39,0.4)] scale-102 sm:scale-105'
               : 'bg-[#0D0D16] border border-[#232338] text-[#8E92B2] hover:text-white'
           }`}
         >
@@ -445,36 +445,36 @@ const FlashSalePage = () => {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400" />
           </span>
           <Flame className="w-4 h-4 fill-current" />
-          <span>ĐANG DIỄN RA (00:00–12:00)</span>
+          <span className="whitespace-nowrap">ĐANG DIỄN RA (00:00–12:00)</span>
         </button>
 
         <button
           onClick={() => setActiveTab('upcoming')}
-          className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-sm transition-all duration-300 ${
+          className={`flex-shrink-0 snap-center flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-extrabold text-xs sm:text-sm transition-all duration-300 min-h-[44px] ${
             activeTab === 'upcoming'
-              ? 'bg-[#FF1E27] text-white shadow-[0_10px_25px_rgba(255,30,39,0.4)] scale-105'
+              ? 'bg-[#FF1E27] text-white shadow-[0_8px_20px_rgba(255,30,39,0.4)] scale-102 sm:scale-105'
               : 'bg-[#0D0D16] border border-[#232338] text-[#8E92B2] hover:text-white'
           }`}
         >
           <Zap className="w-4 h-4 fill-current" />
-          <span>SẮP DIỄN RA (12:00–18:00)</span>
+          <span className="whitespace-nowrap">SẮP DIỄN RA (12:00–18:00)</span>
         </button>
 
         <button
           onClick={() => setActiveTab('night')}
-          className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-sm transition-all duration-300 ${
+          className={`flex-shrink-0 snap-center flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-extrabold text-xs sm:text-sm transition-all duration-300 min-h-[44px] ${
             activeTab === 'night'
-              ? 'bg-[#FF1E27] text-white shadow-[0_10px_25px_rgba(255,30,39,0.4)] scale-105'
+              ? 'bg-[#FF1E27] text-white shadow-[0_8px_20px_rgba(255,30,39,0.4)] scale-102 sm:scale-105'
               : 'bg-[#0D0D16] border border-[#232338] text-[#8E92B2] hover:text-white'
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>ĐỢT CUỐI NGÀY (18:00–24:00)</span>
+          <span className="whitespace-nowrap">ĐỢT CUỐI NGÀY (18:00–24:00)</span>
         </button>
       </section>
 
       {/* 3. FLASH SALE PRODUCT GRID */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {flashProductsToDisplay.map((product) => {
           const stockLeft = product.stockLeft !== undefined 
             ? product.stockLeft 
@@ -488,10 +488,10 @@ const FlashSalePage = () => {
               key={product.id}
               to={`/products/${product.id}`}
               state={{ product: { id: product.id, name: product.name, price: product.flashPrice || (product as any).price, originalPrice: product.originalPrice, imageUrl: product.imageUrl, description: (product as any).description } }}
-              className="bg-[#0D0D16] red-card-border rounded-3xl p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
+              className="bg-[#0D0D16] red-card-border rounded-3xl p-4 sm:p-5 flex flex-col justify-between relative group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
             >
               {/* Discount Ribbon Badge */}
-              <div className="absolute top-3 left-3 bg-[#FF1E27] text-white font-black text-xs px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
+              <div className="absolute top-3 left-3 bg-[#FF1E27] text-white font-black text-xs px-2.5 sm:px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
                 <Zap className="w-3 h-3 fill-white" />
                 <span>-{product.discountPercent}%</span>
               </div>
@@ -507,17 +507,18 @@ const FlashSalePage = () => {
                   <span className="bg-[#FF1E27] text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2 shadow-lg">
                     CHÁY HÀNG
                   </span>
-                  <span className="text-white text-lg font-black tracking-widest uppercase">
+                  <span className="text-white text-base sm:text-lg font-black tracking-widest uppercase">
                     ĐÃ BÁN HẾT 100%
                   </span>
                 </div>
               )}
 
               <div>
-                <div className="relative mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
+                <div className="relative mb-4 sm:mb-5 overflow-hidden rounded-2xl bg-[#08080E] aspect-square w-full">
                   <img
                     src={product.imageUrl}
                     alt={product.name}
+                    loading="lazy"
                     onError={(e) => {
                       const t = e.target as HTMLImageElement;
                       t.onerror = null;
@@ -527,13 +528,13 @@ const FlashSalePage = () => {
                   />
                 </div>
 
-                <h3 className="font-bold text-white text-base line-clamp-2 h-12 mb-3 group-hover:text-[#FF1E27] transition-colors">
+                <h3 className="font-bold text-white text-sm sm:text-base line-clamp-2 h-10 sm:h-12 mb-3 group-hover:text-[#FF1E27] transition-colors">
                   {product.name}
                 </h3>
               </div>
 
               {/* Inventory Progress Bar */}
-              <div className="space-y-2 mb-4">
+              <div className="space-y-1.5 sm:space-y-2 mb-4">
                 <div className="flex justify-between text-xs font-bold">
                   <span className="text-[#8E92B2]">Đã bán {soldPercent}%</span>
                   <span className={stockLeft > 0 && stockLeft < 5 ? 'text-amber-400 animate-pulse font-black' : 'text-[#8E92B2]'}>
@@ -553,33 +554,33 @@ const FlashSalePage = () => {
                 )}
               </div>
 
-            {/* Price & Action Button */}
-            <div className="pt-4 border-t border-[#1E1E2E] flex items-center justify-between">
-              <div>
-                <span className="text-xs text-[#8E92B2] line-through block font-medium">
-                  {formatVND(product.originalPrice)}
-                </span>
-                <span className="text-2xl font-black text-[#FF1E27] tracking-tight">
-                  {formatVND(product.flashPrice)}
-                </span>
-              </div>
+              {/* Price & Action Button */}
+              <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <span className="text-[11px] sm:text-xs text-[#8E92B2] line-through block font-medium truncate">
+                    {formatVND(product.originalPrice)}
+                  </span>
+                  <span className="text-lg sm:text-xl font-black text-[#FF1E27] tracking-tight truncate block">
+                    {formatVND(product.flashPrice)}
+                  </span>
+                </div>
 
-              <button
-                onClick={(e) => handleAddToCart(product, e)}
-                disabled={isSoldOut}
-                className={`px-5 py-2.5 rounded-2xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${
-                  isSoldOut
-                    ? 'bg-[#1F1F30] text-[#5A5E7A] cursor-not-allowed'
-                    : 'bg-[#FF1E27] hover:bg-[#E02424] text-white active:scale-95 shadow-[0_5px_15px_rgba(255,30,39,0.4)]'
-                }`}
-              >
-                <ShoppingBag size={14} />
-                <span>{isSoldOut ? 'Hết hàng' : 'MUA NGAY'}</span>
-              </button>
-            </div>
-          </Link>
-        );
-      })}
+                <button
+                  onClick={(e) => handleAddToCart(product, e)}
+                  disabled={isSoldOut}
+                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-md min-h-[40px] whitespace-nowrap ${
+                    isSoldOut
+                      ? 'bg-[#1F1F30] text-[#5A5E7A] cursor-not-allowed'
+                      : 'bg-[#FF1E27] hover:bg-[#E02424] text-white active:scale-95 shadow-[0_5px_15px_rgba(255,30,39,0.4)]'
+                  }`}
+                >
+                  <ShoppingBag size={14} />
+                  <span>{isSoldOut ? 'Hết hàng' : 'MUA NGAY'}</span>
+                </button>
+              </div>
+            </Link>
+          );
+        })}
       </section>
     </div>
   );
