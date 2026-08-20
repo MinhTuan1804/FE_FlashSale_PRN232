@@ -28,7 +28,7 @@ export interface ProductItem {
 }
 
 export const formatVND = (amount: number) => {
-  return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
+  return new Intl.NumberFormat('vi-VN').format(amount) + '\u00A0₫';
 };
 
 // Color Swatches Palettes for Randomized Per-Product Colors
@@ -98,7 +98,7 @@ const RichFlashSaleProductCard = ({
   })();
 
   return (
-    <div className="bg-[#0D0D16] text-white red-card-border rounded-3xl p-4 flex flex-col justify-between w-[260px] flex-shrink-0 relative group hover:-translate-y-1 transition-all duration-300 shadow-xl">
+    <div className="bg-[#0D0D16] text-white red-card-border rounded-3xl p-4 flex flex-col justify-between w-[80vw] max-w-[290px] sm:w-[260px] flex-shrink-0 snap-center relative group hover:-translate-y-1 transition-all duration-300 shadow-xl">
       
       {/* Clickable Area Navigating to Product Detail Page */}
       <Link to={`/products/${product.id}`} state={{ product }} className="block group/link">
@@ -106,7 +106,7 @@ const RichFlashSaleProductCard = ({
         {/* Main Product Image Container */}
         <div className="relative mb-3.5 overflow-hidden rounded-2xl bg-[#121220] aspect-[4/3] w-full border border-white/10 shadow-inner group/img flex items-center justify-center">
           {product.badge && (
-            <span className="absolute top-2 left-2 bg-[#FF1E27]/80 border border-[#FF1E27] text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 backdrop-blur-md shadow-md">
+            <span className="absolute top-2 left-2 bg-[#FF1E27]/90 border border-[#FF1E27] text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 backdrop-blur-md shadow-md">
               {product.badge}
             </span>
           )}
@@ -114,6 +114,7 @@ const RichFlashSaleProductCard = ({
           <img 
             src={product.imageUrl} 
             alt={product.name}
+            loading="lazy"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.onerror = null;
@@ -126,17 +127,17 @@ const RichFlashSaleProductCard = ({
         {/* Pricing Block */}
         <div className="space-y-0.5">
           {/* Original Price */}
-          <div className="text-xs text-[#8E92B2] line-through font-medium">
+          <div className="text-xs text-[#8E92B2] line-through font-medium truncate">
             {formatVND(origPrice)}
           </div>
 
           {/* Flash Sale Price */}
-          <div className="text-xl font-black text-[#FF1E27] tracking-tight leading-tight">
+          <div className="text-lg sm:text-xl font-black text-[#FF1E27] tracking-tight leading-tight whitespace-nowrap">
             {formatVND(product.price)}
           </div>
 
           {/* Savings Amount */}
-          <div className="text-xs font-bold text-emerald-400">
+          <div className="text-xs font-bold text-emerald-400 whitespace-nowrap">
             Giảm {formatVND(discountAmount)}
           </div>
 
@@ -165,6 +166,7 @@ const RichFlashSaleProductCard = ({
                 selectedColor === idx ? 'border-white scale-110 ring-2 ring-[#FF1E27]/60' : 'border-white/20'
               }`}
               title={color.label}
+              aria-label={color.label}
             />
           ))}
         </div>
@@ -178,7 +180,7 @@ const RichFlashSaleProductCard = ({
                 <button
                   key={size}
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedStorage(size); }}
-                  className={`relative py-1 px-1 rounded-xl text-[10px] font-extrabold transition-all border ${
+                  className={`relative py-1 px-1 rounded-xl text-[10px] font-extrabold transition-all border flex items-center justify-center min-h-[30px] ${
                     isSelected 
                       ? 'border-[#FF1E27] text-white bg-[#FF1E27]/20 shadow-xs' 
                       : 'border-[#232338] text-[#8E92B2] bg-[#121220] hover:bg-white/5'
@@ -199,7 +201,7 @@ const RichFlashSaleProductCard = ({
         {/* Add to Cart Button */}
         <button
           onClick={(e) => onAddToCart(product, e)}
-          className="mt-3.5 w-full py-2.5 rounded-xl bg-[#121220] border border-[#232338] hover:border-[#FF1E27] hover:bg-[#FF1E27] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95"
+          className="mt-3.5 w-full py-2.5 rounded-xl bg-[#121220] border border-[#232338] hover:border-[#FF1E27] hover:bg-[#FF1E27] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 min-h-[40px] whitespace-nowrap"
         >
           <ShoppingBag size={14} />
           <span>MUA NGAY</span>
@@ -811,10 +813,10 @@ const HomePage = () => {
   };
 
   return (
-    <div className="space-y-16 pb-16 bg-transparent text-white">
+    <div className="space-y-10 md:space-y-16 pb-16 bg-transparent text-white">
 
       {/* ─── 1. HERO SECTION ─── */}
-      <section ref={heroContainerRef} className="relative rounded-3xl overflow-hidden border border-[#1f1625] p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 group min-h-[640px]">
+      <section ref={heroContainerRef} className="relative rounded-3xl overflow-hidden border border-[#1f1625] p-5 sm:p-8 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 group min-h-auto lg:min-h-[640px]">
         {/* Interactive Mouse Particle Canvas */}
         <HeroParticlesCanvas containerRef={heroContainerRef} />
 
@@ -843,8 +845,8 @@ const HomePage = () => {
         </div>
 
         {/* Hero Left Content */}
-        <div className="relative z-10 max-w-xl space-y-6 flex-shrink-0">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF1E27]/15 border border-[#FF1E27]/30 text-[#FF1E27] text-[10px] font-extrabold uppercase tracking-[0.2em]">
+        <div className="relative z-10 w-full max-w-xl space-y-4 sm:space-y-6 flex-shrink-0 text-center lg:text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF1E27]/15 border border-[#FF1E27]/30 text-[#FF1E27] text-[10px] font-extrabold uppercase tracking-[0.2em] mx-auto lg:mx-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF1E27] animate-pulse" />
             <span>SIÊU SALE BÙNG NỔ 2026</span>
           </div>
@@ -853,48 +855,48 @@ const HomePage = () => {
             Danh mục <span className="mx-1">&gt;</span> Flash Sale Seed Catalog
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-none">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white uppercase leading-tight">
             SỰ KIỆN FLASH<br/>
             SALE CỰC ĐẠI
           </h1>
 
           {/* Countdown Clock */}
-          <div className="flex items-center gap-3 py-2">
+          <div className="flex items-center justify-center lg:justify-start gap-2.5 sm:gap-3 py-2">
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-4 py-3 min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
-                <span className="font-mono text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.hours)}</span>
+              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[56px] sm:min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
+                <span className="font-mono tabular-nums text-2xl sm:text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.hours)}</span>
               </div>
-              <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giờ</span>
+              <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giờ</span>
             </div>
-            <span className="font-mono text-2xl font-bold text-white mb-4">:</span>
+            <span className="font-mono text-xl sm:text-2xl font-bold text-[#FF1E27] mb-3 sm:mb-4">:</span>
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-4 py-3 min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
-                <span className="font-mono text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.minutes)}</span>
+              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[56px] sm:min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
+                <span className="font-mono tabular-nums text-2xl sm:text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.minutes)}</span>
               </div>
-              <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Phút</span>
+              <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Phút</span>
             </div>
-            <span className="font-mono text-2xl font-bold text-white mb-4">:</span>
+            <span className="font-mono text-xl sm:text-2xl font-bold text-[#FF1E27] mb-3 sm:mb-4">:</span>
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-4 py-3 min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
-                <span className="font-mono text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.seconds)}</span>
+              <div className="flex items-center justify-center bg-[#0d0d16] border border-[#FF1E27]/30 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 min-w-[56px] sm:min-w-[72px] shadow-[0_0_20px_rgba(255,30,39,0.12)]">
+                <span className="font-mono tabular-nums text-2xl sm:text-3xl font-extrabold text-white tracking-widest">{formatDigit(heroTime.seconds)}</span>
               </div>
-              <span className="text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giây</span>
+              <span className="text-[9px] sm:text-[10px] text-[#8E92B2] font-bold uppercase mt-1">Giây</span>
             </div>
           </div>
 
-          <p className="text-[#8E92B2] text-sm md:text-base font-medium line-clamp-1">
+          <p className="text-[#8E92B2] text-xs sm:text-sm md:text-base font-medium line-clamp-1">
             {heroFeaturedProduct.name}
           </p>
 
-          <div className="flex items-baseline gap-3">
+          <div className="flex items-baseline justify-center lg:justify-start gap-2 sm:gap-3 flex-wrap">
             {heroFeaturedProduct.originalPrice && (
-              <span className="text-[#8E92B2] text-sm line-through font-medium">{formatVND(heroFeaturedProduct.originalPrice)}</span>
+              <span className="text-[#8E92B2] text-xs sm:text-sm line-through font-medium truncate">{formatVND(heroFeaturedProduct.originalPrice)}</span>
             )}
-            <span className="text-4xl font-black text-[#FF1E27] tracking-tight">{formatVND(heroFeaturedProduct.price)}</span>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-[#FF1E27] tracking-tight whitespace-nowrap">{formatVND(heroFeaturedProduct.price)}</span>
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-2 max-w-xs">
+          <div className="space-y-1.5 sm:space-y-2 max-w-xs mx-auto lg:mx-0">
             <div className="w-full bg-[#1A1A2A] h-2.5 rounded-full overflow-hidden">
               <div className="bg-[#FF1E27] h-full rounded-full w-[45%]" />
             </div>
@@ -908,10 +910,10 @@ const HomePage = () => {
             <Link 
               to={`/products/${heroFeaturedProduct.id}`}
               state={{ product: heroFeaturedProduct }}
-              className="group inline-flex items-center gap-4 bg-gradient-to-r from-[#FF1E27] to-[#E02424] text-white font-bold text-sm px-8 py-4 rounded-full shadow-[0_10px_35px_rgba(255,30,39,0.45)] hover:shadow-[0_15px_45px_rgba(255,30,39,0.7)] transition-all duration-300 active:scale-95"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 sm:gap-4 bg-gradient-to-r from-[#FF1E27] to-[#E02424] text-white font-bold text-xs sm:text-sm px-6 sm:px-8 py-3.5 sm:py-4 rounded-full shadow-[0_10px_35px_rgba(255,30,39,0.45)] hover:shadow-[0_15px_45px_rgba(255,30,39,0.7)] transition-all duration-300 active:scale-95 min-h-[48px]"
             >
-              <span>MUA NGAY (FLASH BUY)</span>
-              <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:translate-x-1 transition-transform">
+              <span className="whitespace-nowrap">MUA NGAY (FLASH BUY)</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:translate-x-1 transition-transform flex-shrink-0">
                 <ArrowRight size={16} />
               </div>
             </Link>
@@ -922,13 +924,13 @@ const HomePage = () => {
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full lg:w-auto">
           <div className="absolute inset-0 bg-gradient-to-tr from-[#FF1E27]/35 via-purple-600/30 to-transparent rounded-full blur-[130px] opacity-95 pointer-events-none z-0" />
 
-          <div className="relative z-10 w-full max-w-[860px] flex flex-col items-center justify-center">
+          <div className="relative z-10 w-full max-w-[480px] lg:max-w-[860px] flex flex-col items-center justify-center">
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-auto max-h-[640px] object-cover rounded-3xl drop-shadow-[0_40px_100px_rgba(0,0,0,0.98)] transition-transform duration-700 hover:scale-[1.03]"
+              className="w-full h-auto max-h-[380px] lg:max-h-[640px] object-cover rounded-3xl drop-shadow-[0_40px_100px_rgba(0,0,0,0.98)] transition-transform duration-700 hover:scale-[1.03]"
               style={{
                 maskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)',
                 WebkitMaskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)'
@@ -937,28 +939,29 @@ const HomePage = () => {
               <source src={heroVideo} type="video/mp4" />
             </video>
 
-            <div className="mt-1 text-xs font-semibold text-[#8E92B2] flex items-center gap-2 bg-[#0d0d16]/80 px-5 py-2 rounded-full border border-white/10 backdrop-blur-md shadow-xl">
-              <Zap size={14} className="text-[#FF1E27] fill-[#FF1E27]" />
-              <span>{heroFeaturedProduct.name}</span>
+            <div className="mt-2 text-[11px] sm:text-xs font-semibold text-[#8E92B2] flex items-center gap-2 bg-[#0d0d16]/80 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-white/10 backdrop-blur-md shadow-xl max-w-full truncate">
+              <Zap size={14} className="text-[#FF1E27] fill-[#FF1E27] flex-shrink-0" />
+              <span className="truncate">{heroFeaturedProduct.name}</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── 2. THIẾT BỊ ĐIỆN TỬ & GAMING (DARK OLED FLASH SALE CARDS) ─── */}
-      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-xs font-bold text-[#FF1E27] uppercase tracking-wider block mb-1">Thiết Bị Nổi Bật</span>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Sản Phẩm Flash Sales Đầy Đủ Thông Tin</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white">Sản Phẩm Flash Sales Đầy Đủ Thông Tin</h2>
           </div>
           
           {/* Interactive Scroll Buttons */}
-          <div className="flex items-center space-x-2">
+          <div className="hidden sm:flex items-center space-x-2">
             <button 
               onClick={() => scrollContainer(electronicScrollRef, 'left')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang trái"
+              aria-label="Cuộn sang trái"
             >
               <ChevronLeft size={18} />
             </button>
@@ -966,6 +969,7 @@ const HomePage = () => {
               onClick={() => scrollContainer(electronicScrollRef, 'right')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang phải"
+              aria-label="Cuộn sang phải"
             >
               <ChevronRight size={18} />
             </button>
@@ -973,7 +977,7 @@ const HomePage = () => {
         </div>
 
         {/* Rich Flash Sale Cards Horizontal Carousel Container */}
-        <div ref={electronicScrollRef} className="flex overflow-x-auto no-scrollbar gap-5 pb-4 scroll-smooth">
+        <div ref={electronicScrollRef} className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3.5 sm:gap-5 pb-3 -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth">
           {displayFlashSaleProducts.map((product) => (
             <RichFlashSaleProductCard 
               key={product.id} 
@@ -985,19 +989,20 @@ const HomePage = () => {
       </section>
 
       {/* ─── 3. SẮP DIỄN RA SECTION ─── */}
-      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <span className="text-xs font-bold text-[#FF1E27] uppercase tracking-wider block mb-1">Đợt Sale Tiếp Theo</span>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">SẮP DIỄN RA</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white uppercase">SẮP DIỄN RA</h2>
           </div>
 
           {/* Interactive Scroll Buttons */}
-          <div className="flex items-center space-x-2">
+          <div className="hidden sm:flex items-center space-x-2">
             <button 
               onClick={() => scrollContainer(upcomingScrollRef, 'left')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang trái"
+              aria-label="Cuộn sang trái"
             >
               <ChevronLeft size={18} />
             </button>
@@ -1005,6 +1010,7 @@ const HomePage = () => {
               onClick={() => scrollContainer(upcomingScrollRef, 'right')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang phải"
+              aria-label="Cuộn sang phải"
             >
               <ChevronRight size={18} />
             </button>
@@ -1012,13 +1018,13 @@ const HomePage = () => {
         </div>
 
         {/* Scrollable Container */}
-        <div ref={upcomingScrollRef} className="flex overflow-x-auto no-scrollbar gap-5 pb-4 scroll-smooth">
+        <div ref={upcomingScrollRef} className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3.5 sm:gap-5 pb-3 -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth">
           {seedUpcomingProducts.map((product) => (
             <Link
               key={product.id}
               to={`/products/${product.id}`}
               state={{ product }}
-              className="flex-shrink-0 w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-3xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300 shadow-xl"
+              className="flex-shrink-0 snap-center w-[78vw] max-w-[280px] sm:w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-3xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300 shadow-xl"
             >
               <div>
                 {/* Main Image Box with Glassmorphism Overlay Countdown Badge */}
@@ -1026,6 +1032,7 @@ const HomePage = () => {
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
+                    loading="lazy"
                     onError={(e) => {
                       const t = e.target as HTMLImageElement;
                       t.onerror = null;
@@ -1036,12 +1043,12 @@ const HomePage = () => {
 
                   {/* Glassmorphic Overlay Countdown Badge */}
                   {product.time && (
-                    <div className="absolute bottom-2 left-2 right-2 bg-[#0D0D16]/90 backdrop-blur-md border border-[#FF1E27]/40 rounded-xl px-2.5 py-1.5 flex items-center justify-between shadow-lg z-10">
+                    <div className="absolute bottom-2 left-2 right-2 bg-[#0D0D16]/90 backdrop-blur-md border border-[#FF1E27]/40 rounded-xl px-2 py-1.5 flex items-center justify-between shadow-lg z-10">
                       <div className="flex items-center gap-1 text-[9px] font-extrabold text-[#FF1E27] uppercase tracking-wider">
-                        <Clock size={12} className="animate-pulse" />
-                        <span>Mở bán trong</span>
+                        <Clock size={11} className="animate-pulse flex-shrink-0" />
+                        <span className="whitespace-nowrap">Mở bán trong</span>
                       </div>
-                      <span className="font-mono text-xs font-black text-white tracking-wider">
+                      <span className="font-mono text-[11px] sm:text-xs font-black text-white tracking-wider whitespace-nowrap">
                         {formatDigit(product.time.hours)}:{formatDigit(product.time.minutes)}:{formatDigit(product.time.seconds)}
                       </span>
                     </div>
@@ -1049,20 +1056,20 @@ const HomePage = () => {
                 </div>
 
                 {/* Product Title */}
-                <h3 className="font-extrabold text-white text-sm line-clamp-2 h-10 group-hover:text-[#FF1E27] transition-colors leading-snug">
+                <h3 className="font-extrabold text-white text-xs sm:text-sm line-clamp-2 h-9 sm:h-10 group-hover:text-[#FF1E27] transition-colors leading-snug">
                   {product.name}
                 </h3>
               </div>
 
               {/* Price & Interactive Action Button */}
-              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between mt-2">
-                <div>
+              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between mt-2 gap-2">
+                <div className="min-w-0 flex-1">
                   {product.originalPrice && (
-                    <span className="text-[11px] text-[#8E92B2] line-through block font-medium">
+                    <span className="text-[10px] sm:text-[11px] text-[#8E92B2] line-through block font-medium truncate">
                       {formatVND(product.originalPrice)}
                     </span>
                   )}
-                  <span className="text-lg font-black text-[#FF1E27] tracking-tight">{formatVND(product.price)}</span>
+                  <span className="text-base sm:text-lg font-black text-[#FF1E27] tracking-tight whitespace-nowrap block truncate">{formatVND(product.price)}</span>
                 </div>
 
                 <button 
@@ -1071,7 +1078,7 @@ const HomePage = () => {
                     e.stopPropagation();
                     toast.success(`Đã đăng ký nhận thông báo Flash Sale cho ${product.name}!`);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-[#FF1E27]/15 hover:bg-[#FF1E27] border border-[#FF1E27]/40 text-[#FF1E27] hover:text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1 active:scale-95 shadow-md"
+                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#FF1E27]/15 hover:bg-[#FF1E27] border border-[#FF1E27]/40 text-[#FF1E27] hover:text-white text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 active:scale-95 shadow-md min-h-[34px] whitespace-nowrap flex-shrink-0"
                   title="Nhận thông báo khi mở bán"
                 >
                   <Bell size={12} />
@@ -1084,22 +1091,23 @@ const HomePage = () => {
       </section>
 
       {/* ─── 4. TOP PHỤ KIỆN GAMING BÁN CHẠY ─── */}
-      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold text-[#FF1E27] uppercase tracking-widest mb-1">
               <Zap size={14} className="fill-[#FF1E27]" />
               <span>Thiết Bị Nổi Bật</span>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Top Phụ Kiện Gaming Bán Chạy</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white">Top Phụ Kiện Gaming Bán Chạy</h2>
           </div>
 
           {/* Interactive Scroll Buttons */}
-          <div className="flex items-center space-x-2">
+          <div className="hidden sm:flex items-center space-x-2">
             <button 
               onClick={() => scrollContainer(bestsellingScrollRef, 'left')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang trái"
+              aria-label="Cuộn sang trái"
             >
               <ChevronLeft size={18} />
             </button>
@@ -1107,6 +1115,7 @@ const HomePage = () => {
               onClick={() => scrollContainer(bestsellingScrollRef, 'right')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang phải"
+              aria-label="Cuộn sang phải"
             >
               <ChevronRight size={18} />
             </button>
@@ -1114,23 +1123,24 @@ const HomePage = () => {
         </div>
 
         {/* Scrollable Container */}
-        <div ref={bestsellingScrollRef} className="flex overflow-x-auto no-scrollbar gap-5 pb-4 scroll-smooth">
+        <div ref={bestsellingScrollRef} className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3.5 sm:gap-5 pb-3 -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth">
           {displayBestsellingGear.map((product) => (
             <Link 
               key={product.id} 
               to={`/products/${product.id}`}
               state={{ product }}
-              className="flex-shrink-0 w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-2xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300"
+              className="flex-shrink-0 snap-center w-[78vw] max-w-[280px] sm:w-[260px] bg-[#0D0D16] red-card-border p-4 rounded-2xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300"
             >
               <div>
-                <div className="relative mb-4 overflow-hidden rounded-xl bg-[#121220] aspect-[4/3] w-full border border-white/10 shadow-inner">
-                  <span className="absolute top-2 left-2 bg-[#FF1E27]/80 border border-[#FF1E27] text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 backdrop-blur-md shadow-md">
+                <div className="relative mb-3.5 overflow-hidden rounded-xl bg-[#121220] aspect-[4/3] w-full border border-white/10 shadow-inner">
+                  <span className="absolute top-2 left-2 bg-[#FF1E27]/90 border border-[#FF1E27] text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 backdrop-blur-md shadow-md">
                     {product.badge || 'Chính hãng'}
                   </span>
                   
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
+                    loading="lazy"
                     onError={(e) => {
                       const t = e.target as HTMLImageElement;
                       t.onerror = null;
@@ -1140,28 +1150,29 @@ const HomePage = () => {
                   />
                 </div>
 
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs mb-2">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs mb-1.5">
                   <Star size={13} fill="currentColor" />
                   <span className="font-extrabold text-white">{product.rating || 5.0}</span>
-                  <span className="text-[#8E92B2] text-[11px]">({product.reviews || 150} đánh giá)</span>
+                  <span className="text-[#8E92B2] text-[10px]">({product.reviews || 150} đánh giá)</span>
                 </div>
 
-                <h3 className="font-semibold text-white line-clamp-2 text-sm mb-2 h-10 group-hover:text-[#FF1E27] transition-colors">
+                <h3 className="font-semibold text-white line-clamp-2 text-xs sm:text-sm mb-2 h-9 sm:h-10 group-hover:text-[#FF1E27] transition-colors leading-snug">
                   {product.name}
                 </h3>
               </div>
 
-              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between mt-2">
-                <div>
+              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between mt-2 gap-2">
+                <div className="min-w-0 flex-1">
                   {product.originalPrice && (
-                    <span className="text-[11px] text-[#8E92B2] line-through block font-medium">{formatVND(product.originalPrice)}</span>
+                    <span className="text-[10px] sm:text-[11px] text-[#8E92B2] line-through block font-medium truncate">{formatVND(product.originalPrice)}</span>
                   )}
-                  <span className="text-lg font-extrabold text-[#FF1E27]">{formatVND(product.price)}</span>
+                  <span className="text-base sm:text-lg font-extrabold text-[#FF1E27] whitespace-nowrap block truncate">{formatVND(product.price)}</span>
                 </div>
                 <button 
                   onClick={(e) => handleAddToCart(product, e)}
-                  className="p-2.5 rounded-xl bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-[#FF1E27] hover:text-white transition-colors shadow-md"
+                  className="p-2 sm:p-2.5 rounded-xl bg-[#FF1E27]/10 hover:bg-[#FF1E27] text-[#FF1E27] hover:text-white transition-colors shadow-md min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
                   title="Thêm vào giỏ hàng"
+                  aria-label="Thêm vào giỏ hàng"
                 >
                   <ShoppingBag size={16} />
                 </button>
@@ -1171,7 +1182,7 @@ const HomePage = () => {
         </div>
 
         {/* Glassmorphic Voucher Hub */}
-        <div className="mt-8 bg-gradient-to-r from-[#121220] via-[#1A1A2E] to-[#121220] border border-[#FF1E27]/30 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative overflow-hidden">
+        <div className="mt-6 sm:mt-8 bg-gradient-to-r from-[#121220] via-[#1A1A2E] to-[#121220] border border-[#FF1E27]/30 rounded-3xl p-5 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative overflow-hidden">
           <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#FF1E27]/10 rounded-full blur-3xl pointer-events-none" />
           
           <div className="space-y-2 max-w-sm">
@@ -1179,22 +1190,22 @@ const HomePage = () => {
               <Tag size={14} />
               <span>VOUCHER ƯU ĐÃI ĐỘC QUYỀN</span>
             </div>
-            <h3 className="text-2xl font-black text-white">Glassmorphic Voucher Hub</h3>
+            <h3 className="text-xl sm:text-2xl font-black text-white">Glassmorphic Voucher Hub</h3>
             <p className="text-xs text-[#8E92B2]">Nhập mã khi thanh toán để nhận ngay ưu đãi giảm giá và miễn phí vận chuyển toàn quốc!</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
             {flashVouchers.map((v) => (
-              <div key={v.code} className="bg-[#07070c] border border-[#232338] hover:border-[#FF1E27]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group">
+              <div key={v.code} className="bg-[#07070c] border border-[#232338] hover:border-[#FF1E27]/50 rounded-2xl p-3.5 flex flex-col justify-between transition-all group min-w-0 sm:min-w-[150px]">
                 <div>
                   <div className="text-sm font-extrabold text-[#FF1E27]">{v.discount}</div>
-                  <div className="text-[10px] text-white font-medium mt-0.5">{v.minSpend}</div>
-                  <div className="text-[9px] text-[#8E92B2] mt-1">{v.expiry}</div>
+                  <div className="text-[10px] text-white font-medium mt-0.5 truncate">{v.minSpend}</div>
+                  <div className="text-[9px] text-[#8E92B2] mt-1 truncate">{v.expiry}</div>
                 </div>
 
                 <button 
                   onClick={() => copyVoucher(v.code)}
-                  className="mt-3 w-full py-1.5 px-3 rounded-lg bg-[#181826] hover:bg-[#FF1E27] text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors border border-white/10"
+                  className="mt-3 w-full py-2 px-3 rounded-lg bg-[#181826] hover:bg-[#FF1E27] text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors border border-white/10 min-h-[36px]"
                 >
                   {copiedCode === v.code ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                   <span>{copiedCode === v.code ? 'ĐÃ SAO CHÉP' : v.code}</span>
@@ -1206,10 +1217,10 @@ const HomePage = () => {
       </section>
 
       {/* ─── 5. ENGINEERED FOR PERFORMANCE BENTO GRID ─── */}
-      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         {/* Bento Grid Header */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Tối Ưu Cho <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">Hiệu Năng Vượt Trội</span>
           </h2>
           <p className="text-xs md:text-sm text-[#8E92B2] font-medium">
@@ -1217,49 +1228,49 @@ const HomePage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="doppelrand-card p-6 flex gap-4 items-start group">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="doppelrand-card p-4 sm:p-6 flex gap-4 items-start group">
             <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
               <Cpu size={20} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">Xử lý Siêu Tốc</h3>
+              <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-cyan-300 transition-colors">Xử lý Siêu Tốc</h3>
               <p className="text-xs text-[#8E92B2] leading-relaxed">
                 Hệ thống Microservices phản hồi dữ liệu thời gian thực tính bằng miligiây.
               </p>
             </div>
           </div>
 
-          <div className="doppelrand-card p-6 flex gap-4 items-start group">
+          <div className="doppelrand-card p-4 sm:p-6 flex gap-4 items-start group">
             <div className="w-10 h-10 rounded-2xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center text-purple-400 flex-shrink-0 group-hover:scale-110 transition-transform">
               <Battery size={20} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">Pin "Trâu" Suốt Ngày</h3>
+              <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-purple-300 transition-colors">Pin "Trâu" Suốt Ngày</h3>
               <p className="text-xs text-[#8E92B2] leading-relaxed">
                 Thiết bị công nghệ chính hãng cam kết dung lượng pin chuẩn 100%.
               </p>
             </div>
           </div>
 
-          <div className="doppelrand-card p-6 flex gap-4 items-start group">
+          <div className="doppelrand-card p-4 sm:p-6 flex gap-4 items-start group">
             <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform">
               <Truck size={20} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white group-hover:text-orange-300 transition-colors">Giao Hàng Siêu Tốc</h3>
+              <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-orange-300 transition-colors">Giao Hàng Siêu Tốc</h3>
               <p className="text-xs text-[#8E92B2] leading-relaxed">
                 Giao hàng hỏa tốc trong 2 giờ nội thành, miễn phí vận chuyển đơn từ 500k.
               </p>
             </div>
           </div>
 
-          <div className="doppelrand-card p-6 flex gap-4 items-start group">
+          <div className="doppelrand-card p-4 sm:p-6 flex gap-4 items-start group">
             <div className="w-10 h-10 rounded-2xl bg-blue-500/15 border border-blue-400/30 flex items-center justify-center text-blue-400 flex-shrink-0 group-hover:scale-110 transition-transform">
               <Layers size={20} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors">Hệ điều hành Thông Minh</h3>
+              <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-blue-300 transition-colors">Hệ điều hành Thông Minh</h3>
               <p className="text-xs text-[#8E92B2] leading-relaxed">
                 Tích hợp ví điện tử FlashPay và hệ thống thông báo trạng thái đơn hàng tức thì.
               </p>
@@ -1269,22 +1280,23 @@ const HomePage = () => {
       </section>
 
       {/* ─── 6. CUSTOMER TESTIMONIALS GLASSMORPHISM SLIDER ─── */}
-      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+      <section className="bg-[#0D0D16]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-center">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold text-[#FF1E27] uppercase tracking-widest mb-1">
               <MessageSquare size={14} className="fill-[#FF1E27]" />
               <span>ĐÁNH GIÁ THỰC TẾ TỪ KHÁCH HÀNG</span>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">Khách Hàng Nói Gì Về FlashShop?</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white">Khách Hàng Nói Gì Về FlashShop?</h2>
           </div>
 
           {/* Interactive Scroll Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="hidden sm:flex items-center space-x-2">
             <button 
               onClick={() => scrollContainer(testimonialsScrollRef, 'left')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang trái"
+              aria-label="Cuộn sang trái"
             >
               <ChevronLeft size={18} />
             </button>
@@ -1292,6 +1304,7 @@ const HomePage = () => {
               onClick={() => scrollContainer(testimonialsScrollRef, 'right')}
               className="w-9 h-9 rounded-full border border-[#232338] bg-[#0D0D16] hover:border-[#FF1E27] hover:bg-[#FF1E27]/15 text-[#8E92B2] hover:text-white flex items-center justify-center transition-all active:scale-90 shadow-md"
               title="Cuộn sang phải"
+              aria-label="Cuộn sang phải"
             >
               <ChevronRight size={18} />
             </button>
@@ -1301,41 +1314,41 @@ const HomePage = () => {
         {/* Glassmorphic Testimonials Horizontal Scroll Slider */}
         <div 
           ref={testimonialsScrollRef}
-          className="flex overflow-x-auto no-scrollbar gap-6 py-2 scroll-smooth"
+          className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-4 sm:gap-6 py-2 -mx-1 px-1 sm:mx-0 sm:px-0 scroll-smooth"
         >
           {testimonials.map((t) => (
             <div 
               key={t.id}
-              className="bg-gradient-to-b from-[#121220] via-[#0D0D16] to-[#08080E] border border-white/10 hover:border-[#FF1E27]/50 rounded-3xl p-6 w-[320px] md:w-[360px] flex-shrink-0 relative space-y-4 group transition-all duration-300 hover:-translate-y-1 shadow-xl flex flex-col justify-between"
+              className="bg-gradient-to-b from-[#121220] via-[#0D0D16] to-[#08080E] border border-white/10 hover:border-[#FF1E27]/50 rounded-3xl p-4 sm:p-6 w-[85vw] max-w-[340px] sm:w-[320px] md:w-[360px] flex-shrink-0 snap-center relative space-y-4 group transition-all duration-300 hover:-translate-y-1 shadow-xl flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Header: Customer Info & Rating */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                       <img 
                         src={t.avatarUrl} 
                         alt={t.customerName} 
-                        className="w-11 h-11 rounded-full object-cover border-2 border-[#FF1E27]/40 p-0.5"
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-[#FF1E27]/40 p-0.5"
                       />
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#0D0D16] flex items-center justify-center text-[8px] text-white font-bold">
                         ✓
                       </div>
                     </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-white group-hover:text-[#FF1E27] transition-colors">{t.customerName}</h4>
-                      <p className="text-[10px] text-[#8E92B2] font-medium">{t.role}</p>
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-xs sm:text-sm text-white group-hover:text-[#FF1E27] transition-colors truncate">{t.customerName}</h4>
+                      <p className="text-[10px] text-[#8E92B2] font-medium truncate">{t.role}</p>
                     </div>
                   </div>
 
-                  <Quote size={24} className="text-[#FF1E27]/20 group-hover:text-[#FF1E27]/40 transition-colors" />
+                  <Quote size={20} className="text-[#FF1E27]/20 group-hover:text-[#FF1E27]/40 transition-colors flex-shrink-0" />
                 </div>
 
                 {/* Star Rating & Purchased Product Badge */}
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center text-amber-400 gap-0.5">
                     {[...Array(t.rating)].map((_, i) => (
-                      <Star key={i} size={14} fill="currentColor" />
+                      <Star key={i} size={13} fill="currentColor" />
                     ))}
                   </div>
 
@@ -1345,15 +1358,15 @@ const HomePage = () => {
                 </div>
 
                 {/* Feedback Comment */}
-                <p className="text-xs text-[#8E92B2] leading-relaxed italic pt-1">
+                <p className="text-xs text-[#8E92B2] leading-relaxed italic pt-1 line-clamp-4">
                   "{t.comment}"
                 </p>
               </div>
 
               {/* Product Purchased Tag & Date */}
-              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between text-[10px] text-[#8E92B2]">
-                <span className="font-bold text-white line-clamp-1 max-w-[200px]">📦 {t.productName}</span>
-                <span>{t.createdDate}</span>
+              <div className="pt-3 border-t border-[#1E1E2E] flex items-center justify-between text-[10px] text-[#8E92B2] gap-2">
+                <span className="font-bold text-white line-clamp-1 truncate">📦 {t.productName}</span>
+                <span className="whitespace-nowrap flex-shrink-0">{t.createdDate}</span>
               </div>
             </div>
           ))}
