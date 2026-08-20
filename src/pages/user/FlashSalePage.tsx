@@ -555,26 +555,28 @@ const FlashSalePage = () => {
               </div>
 
               {/* Price & Action Button */}
-              <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] flex flex-col min-[360px]:flex-row min-[360px]:items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <span className="text-[11px] sm:text-xs text-[#8E92B2] line-through block font-medium whitespace-nowrap">
-                    {formatVND(product.originalPrice)}
-                  </span>
-                  <span className="text-base sm:text-lg lg:text-xl font-black text-[#FF1E27] tracking-tight whitespace-nowrap block">
+              <div className="pt-3 sm:pt-4 border-t border-[#1E1E2E] space-y-2.5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-lg sm:text-xl font-black text-[#FF1E27] tracking-tight whitespace-nowrap">
                     {formatVND(product.flashPrice)}
                   </span>
+                  {product.originalPrice && (
+                    <span className="text-xs text-[#8E92B2] line-through font-medium whitespace-nowrap">
+                      {formatVND(product.originalPrice)}
+                    </span>
+                  )}
                 </div>
 
                 <button
                   onClick={(e) => handleAddToCart(product, e)}
                   disabled={isSoldOut}
-                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md min-h-[38px] whitespace-nowrap flex-shrink-0 ${
+                  className={`w-full py-2.5 sm:py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md min-h-[42px] whitespace-nowrap ${
                     isSoldOut
                       ? 'bg-[#1F1F30] text-[#5A5E7A] cursor-not-allowed'
                       : 'bg-[#FF1E27] hover:bg-[#E02424] text-white active:scale-95 shadow-[0_5px_15px_rgba(255,30,39,0.4)]'
                   }`}
                 >
-                  <ShoppingBag size={14} />
+                  <ShoppingBag size={15} />
                   <span>{isSoldOut ? 'Hết hàng' : 'MUA NGAY'}</span>
                 </button>
               </div>
