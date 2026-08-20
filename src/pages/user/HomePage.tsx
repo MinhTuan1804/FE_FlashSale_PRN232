@@ -845,7 +845,7 @@ const HomePage = () => {
         </div>
 
         {/* Hero Left Content */}
-        <div className="relative z-10 w-full max-w-xl space-y-4 sm:space-y-6 flex-shrink-0 text-center lg:text-left">
+        <div className="relative z-10 w-full lg:w-[44%] xl:w-[42%] max-w-xl space-y-4 sm:space-y-6 flex-shrink-0 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF1E27]/15 border border-[#FF1E27]/30 text-[#FF1E27] text-[10px] font-extrabold uppercase tracking-[0.2em] mx-auto lg:mx-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF1E27] animate-pulse" />
             <span>SIÊU SALE BÙNG NỔ 2026</span>
@@ -920,26 +920,26 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Hero Right: Video Visual */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full lg:w-auto">
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#FF1E27]/35 via-purple-600/30 to-transparent rounded-full blur-[130px] opacity-95 pointer-events-none z-0" />
+        {/* Hero Right: Video Visual (Expanded and Larger) */}
+        <div className="relative z-10 flex-1 w-full lg:w-[56%] xl:w-[58%] flex flex-col items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#FF1E27]/40 via-purple-600/35 to-transparent rounded-full blur-[140px] opacity-95 pointer-events-none z-0" />
 
-          <div className="relative z-10 w-full max-w-[480px] lg:max-w-[860px] flex flex-col items-center justify-center">
+          <div className="relative z-10 w-full max-w-[640px] md:max-w-[780px] lg:max-w-[960px] flex flex-col items-center justify-center">
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-auto max-h-[380px] lg:max-h-[640px] object-cover rounded-3xl drop-shadow-[0_40px_100px_rgba(0,0,0,0.98)] transition-transform duration-700 hover:scale-[1.03]"
+              className="w-full h-auto max-h-[460px] sm:max-h-[540px] md:max-h-[600px] lg:max-h-[680px] object-cover rounded-3xl drop-shadow-[0_30px_90px_rgba(255,30,39,0.25)] border border-white/10 transition-transform duration-700 hover:scale-[1.02]"
               style={{
-                maskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)',
-                WebkitMaskImage: 'radial-gradient(circle at center, black 70%, transparent 99%)'
+                maskImage: 'radial-gradient(circle at center, black 75%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(circle at center, black 75%, transparent 100%)'
               }}
             >
               <source src={heroVideo} type="video/mp4" />
             </video>
 
-            <div className="mt-2 text-[11px] sm:text-xs font-semibold text-[#8E92B2] flex items-center gap-2 bg-[#0d0d16]/80 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border border-white/10 backdrop-blur-md shadow-xl max-w-full truncate">
+            <div className="mt-3 text-[11px] sm:text-xs font-semibold text-[#8E92B2] flex items-center gap-2 bg-[#0d0d16]/90 px-5 py-2 rounded-full border border-white/15 backdrop-blur-md shadow-2xl max-w-full truncate">
               <Zap size={14} className="text-[#FF1E27] fill-[#FF1E27] flex-shrink-0" />
               <span className="truncate">{heroFeaturedProduct.name}</span>
             </div>
